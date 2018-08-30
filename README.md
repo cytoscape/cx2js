@@ -1,5 +1,7 @@
 # cytoscape-cx2js
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/cytoscape/cx2js.svg)](https://greenkeeper.io/)
+
 
 
 
