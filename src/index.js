@@ -2570,13 +2570,6 @@ class CyNetworkUtils {
         }
         return nodeElement['@id'];
     }
-
-    getProvenanceFromNiceCX(niceCX) {
-        const history = niceCX['provenanceHistory'];
-        if (history !== undefined) {
-            return history.elements[0].entity;
-        }
-    }
 }
 
 module.exports = { CxToJs, CyNetworkUtils };
