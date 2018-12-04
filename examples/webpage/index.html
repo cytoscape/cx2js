@@ -5,7 +5,7 @@
 <head>
     <title>CX to JS in a webpage</title>
     <script src="../../build/bundle.js"></script>
-    <script src="cytoscape.js"></script>
+    <script src="cytoscape.min.js"></script>
 </head>
 
 <style>
@@ -74,7 +74,7 @@
             var zoom = cx2Js.cyZoomFromNiceCX(niceCX);
 
             var pan = cx2Js.cyPanFromNiceCX(niceCX);
-            
+
             date = new Date();
             var endTime = date.getTime();
 
@@ -94,7 +94,7 @@
             };
 
             var cy = cytoscape(cytoscapeJS);
-            
+
             date = new Date();
             var endTime = date.getTime();
             console.info('cytoscape js init time: '+ (endTime - startTime) + ' milliseconds');
