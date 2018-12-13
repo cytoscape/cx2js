@@ -10,11 +10,13 @@
 
 <style>
     #cy {
-        background-color: white;
+      background-color: white;
         width: 100%;
         height: 600px;
         top: 0px;
         left: 0px;
+        z-index: 0;
+        letter-spacing: 1px;
     }
 </style>
 
@@ -94,6 +96,10 @@
             };
 
             var cy = cytoscape(cytoscapeJS);
+
+            var cx2canvas = new cytoscapeCx2js.CxToCyCanvas();
+
+            cx2canvas.drawAnnotationsFromNiceCX(cytoscape, cy, niceCX);
 
             date = new Date();
             var endTime = date.getTime();
