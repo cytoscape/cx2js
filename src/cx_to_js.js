@@ -361,6 +361,9 @@ class CxToJs {
         // any attribute names that conflict must be mapped.
         var self = this;
 
+        this.JavaLogicalFontConstants = JavaLogicalFontConstants;
+        this.CommonOSFontConstants = CommonOSFontConstants;
+
         this.specialCaseAttributeMap = {
             'id': 'cx_id',
             'target': 'cx_target',
