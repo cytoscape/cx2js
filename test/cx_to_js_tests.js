@@ -206,22 +206,27 @@ describe('CX to JS', function(){
     var utils = new CyNetworkUtils();
     var cxToJs = new CxToJs(utils);
 
-    var attributeNameMap = {'$id' : '$id'};
+    var badName = "id";
+
+    var attributeNameMap = { };
+    attributeNameMap[badName] = badName;
 
     cxToJs.sanitizeAttributeNameMap(attributeNameMap);
 
-    expect( attributeNameMap ).to.eql({'$id' : '_id_u1'});
+    expect( attributeNameMap ).to.eql({'id' : "cx_id"});
   });
 
   it('cxToJs sanitizeAttributeNameMap', function(){
     var utils = new CyNetworkUtils();
     var cxToJs = new CxToJs(utils);
 
-    var attributeNameMap = {'foo' : 'foo'};
+    var attributeNameMap = {'id' : 'id',
+                            'cx_id' : 'cx_id'};
 
-    cxToJs.sanitizeAttributeNameMap(attributeNameMap);
+    var badFn = function () { cxToJs.sanitizeAttributeNameMap(attributeNameMap); };                    
+    expect(badFn).to.throw('Cannot rename id to cx_id: already exists.');
 
-    expect( attributeNameMap ).to.eql({'foo' : 'foo'});
+    //expect( attributeNameMap ).to.eql({'foo' : 'foo'});
   });
 
   it('cxToJs specialCase sanitizeAttributeNameMap', function(){

@@ -391,26 +391,15 @@ class CxToJs {
 
         this.sanitizeAttributeNameMap = function (attributeNameMap) {
             var attributeNames = Object.keys(attributeNameMap);
-            var uniqueCounter = 1;
             attributeNames.forEach(function (attributeName) {
                 // handle attribute names that conflict with reserved names used by cyjs
                 var specialCaseName = self.specialCaseAttributeMap[attributeName];
                 if (specialCaseName) {
+                    if (attributeNameMap[specialCaseName]) {
+                        throw ("Cannot rename " + attributeName + " to " + specialCaseName + ": already exists.");
+                    }
                     attributeNameMap[attributeName] = specialCaseName;
-                } else if (/^[A-Za-z][A-Za-z0-9]*$/.test(attributeName)) { // name is ok
-                    attributeNameMap[attributeName] = attributeName;
-                } else {
-                    // We will map the name to a modified name
-                    // cyjs requires that attribute names avoid special characters, so names with
-                    // special characters must be transformed and mapped.
-                    // `^[^a-zA-Z_]+|[^a-zA-Z_0-9]+
-
-                    var nonAlpha = attributeName.replace(/^[^a-zA-Z_]+|[^a-zA-Z_0-9]+/gi, '_');
-                    nonAlpha = nonAlpha + '_u' + uniqueCounter;
-                    uniqueCounter = uniqueCounter + 1;
-                    attributeNameMap[attributeName] = nonAlpha;
                 }
-
             });
 
         };
@@ -1062,7 +1051,7 @@ class CxToJs {
             });
         }
 
-        //            sanitizeAttributeNameMap(attributeNameMap);
+        //this.sanitizeAttributeNameMap(attributeNameMap);
 
         var edgeAttributes = this.cxNetworkUtils.getEdgeAttributes(niceCX);
         if (edgeAttributes) {
