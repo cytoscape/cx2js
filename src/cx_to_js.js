@@ -1018,10 +1018,8 @@ class CxToJs {
                 objectProperties['bend-point-weights'] = controlPointWeights;
             },
             'EDGE_SOURCE_ARROW_SHAPE' : function (arrowShape, objectProperties) {
-                console.log('SOURCE_ARROW_SHAPE');
                 self.expandArrowShapeProperties(arrowShape, objectProperties, 'source-arrow-shape', 'source-arrow-fill');},
             'EDGE_TARGET_ARROW_SHAPE' : function (arrowShape, objectProperties) {
-                console.log('TARGET_ARROW_SHAPE');
                 self.expandArrowShapeProperties(arrowShape, objectProperties, 'target-arrow-shape', 'target-arrow-fill');},
         };
 
@@ -1045,8 +1043,6 @@ class CxToJs {
                 nodeProperties.height = postProcessParams.nodeSize;
                 nodeProperties.width = postProcessParams.nodeSize;
             }
-
-
         };
 
         this.cyVisualPropertyFromNiceCX = function (niceCX, type, vp) {
@@ -1446,7 +1442,6 @@ class CxToJs {
                 if (elementType === 'nodes:default') {
 
                     var defaultNodeProperties = {};
-
                     var postProcessNodeParams = {};
                     postProcessNodeParams.nodeSize = null;
 
