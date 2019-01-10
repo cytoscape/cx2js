@@ -1,7 +1,7 @@
 let _ = require('lodash');
 
-const JavaLogicalFontConstants =require('./java_logical_font_constants.js');
-const CommonOSFontConstants =require('./common_os_font_constants.js');
+const JavaLogicalFontConstants = require('./java_logical_font_constants.js');
+const CommonOSFontConstants = require('./common_os_font_constants.js');
 
 const DEF_LAYOUT = { name: 'preset', animate: false, numIter: 50, coolingFactor: 0.9, fit: false };
 
@@ -123,10 +123,14 @@ const LINE_STYLE_MAP = {
 };
 
 const DEFAULT_EXPANDED_PROPERTIES = {
-    'NODE_LABEL_FONT_FACE' : {'font-family' : 'sans-serif',
-        'font-weight': 'normal' },
-    'EDGE_LABEL_FONT_FACE' : {'font-family' : 'sans-serif',
-        'font-weight': 'normal' }
+    'NODE_LABEL_FONT_FACE': {
+        'font-family': 'sans-serif',
+        'font-weight': 'normal'
+    },
+    'EDGE_LABEL_FONT_FACE': {
+        'font-family': 'sans-serif',
+        'font-weight': 'normal'
+    }
     //'NODE_LABEL_POSITION' : {}
 
 };
@@ -332,7 +336,8 @@ const visualPropertyMap = {
     'NODE_LABEL_TRANSPARENCY': { 'att': 'text-opacity', 'type': 'opacity' },
     'NODE_LABEL_POSITION': { 'att': 'labelPosition', 'type': 'labelPosition' },
 
-    'EDGE_BEND' : { 'att': 'curve-style', 'type':'curve-style' },
+    'EDGE_CURVED': { 'att': 'curve-style', 'type': 'curveStyle' },
+    'EDGE_BEND': { 'att': 'curve-style', 'type': 'edgeBend' },
 
     'EDGE_WIDTH': { 'att': 'width', 'type': 'number' },
     'EDGE_LABEL': { 'att': 'label', 'type': 'string' },
@@ -341,7 +346,7 @@ const visualPropertyMap = {
     'EDGE_LABEL_FONT_FACE': { 'att': 'font-family', 'type': 'fontFamily' },
     'EDGE_LABEL_TRANSPARENCY': { 'att': 'text-opacity', 'type': 'opacity' },
     'EDGE_LINE_TYPE': { 'att': 'line-style', 'type': 'line' },
-    
+
     'EDGE_STROKE_UNSELECTED_PAINT': { 'att': 'line-color', 'type': 'color' },
     'EDGE_UNSELECTED_PAINT': { 'att': 'line-color', 'type': 'color' },
     'EDGE_TRANSPARENCY': { 'att': 'opacity', 'type': 'opacity' },
@@ -709,8 +714,12 @@ class CxToJs {
                 }
             } else if (cyVisualAttributeType === 'labelPosition') {
                 return self.getNodeLabelPosition(visualAttributeValue);
-            } else if (cyVisualAttributeType === 'curve-style') {
-                return 'unbundled-bezier';
+            } else if (cyVisualAttributeType === 'curveStyle') {
+                if (!visualAttributeValue || visualAttributeValue === 'false') {
+                    return 'segments';
+                } else {
+                    return 'unbundled-bezier';
+                }
             }
             // assume string
             return visualAttributeValue;
@@ -718,7 +727,7 @@ class CxToJs {
 
         //var getCyVisualAttributeForVP = self.getCyVisualAttributeForVP
         this.discreteMappingStyle = function (elementType, vp, def, attributeNameMap) {
-            //console.log(def);
+
             // def is the discreteMappingStyle definition
             var elements = [];
             var cyVisualAttribute = self.getCyVisualAttributeForVP(vp);
@@ -921,18 +930,18 @@ class CxToJs {
             }
         };
 
-        this.isJavaLogicalFont = function(labelFontFace) {
+        this.isJavaLogicalFont = function (labelFontFace) {
             var cyFontCol = labelFontFace.split('.');
             if (cyFontCol.length == 2) {
-                return  JavaLogicalFontConstants.FONT_FAMILY_LIST.includes(cyFontCol[0]) && cyFontCol[1].toLowerCase() in JavaLogicalFontConstants.FONT_PROPERTIES_MAP;  
+                return JavaLogicalFontConstants.FONT_FAMILY_LIST.includes(cyFontCol[0]) && cyFontCol[1].toLowerCase() in JavaLogicalFontConstants.FONT_PROPERTIES_MAP;
             } else {
                 return false;
             }
         };
 
-        this.expandFontFaceProperties = function(value, objectProperties) {
+        this.expandFontFaceProperties = function (value, objectProperties) {
             var font = value.split(',');
-           
+
             var isJavaLogicalFont = self.isJavaLogicalFont;
             var fontStack;
             if (isJavaLogicalFont(font[0])) {
@@ -943,9 +952,9 @@ class CxToJs {
                     objectProperties[propertyKey] = propertyValue;
                 });
             } else {
-               
-                fontStack= CommonOSFontConstants.FONT_STACK_MAP[font[0]];
-                
+
+                fontStack = CommonOSFontConstants.FONT_STACK_MAP[font[0]];
+
                 if (font[1].toLowerCase in JavaLogicalFontConstants.FONT_PROPERTIES_MAP) {
                     var fontProperties = JavaLogicalFontConstants.FONT_PROPERTIES_MAP[font[1].toUpperCase];
                     _.forEach(fontProperties, function (propertyValue, propertyKey) {
@@ -963,15 +972,31 @@ class CxToJs {
         };
 
         this.EXPANDED_PROPERTY_FUNCTION_MAP = {
-            'NODE_LABEL_FONT_FACE' : self.expandFontFaceProperties,
-            'EDGE_LABEL_FONT_FACE' : self.expandFontFaceProperties,
-            'NODE_LABEL_POSITION' : function (cyLabelPosition, objectProperties) {
+            'NODE_LABEL_FONT_FACE': self.expandFontFaceProperties,
+            'EDGE_LABEL_FONT_FACE': self.expandFontFaceProperties,
+            'NODE_LABEL_POSITION': function (cyLabelPosition, objectProperties) {
                 var labelPosition = self.getNodeLabelPosition(cyLabelPosition);
                 objectProperties['text-valign'] = labelPosition['text-valign'];
                 objectProperties['text-halign'] = labelPosition['text-halign'];
             },
-            'EDGE_BEND' : function (cyEdgeBend, objectProperties) {
-                console.log("EDGE_BEND: " + cyEdgeBend);
+            'EDGE_BEND': function (cyEdgeBend, objectProperties) {
+
+                var bendPoints = cyEdgeBend.split("|");
+                var controlPointDistances = [];
+                var controlPointWeights = [];
+
+                _.forEach(bendPoints, function (bendPoint) {
+                    var pointFields = bendPoint.split(",");
+                    let cos = Number(pointFields[0]);
+                    let sin = Number(pointFields[1]);
+                    let ratio = Number(pointFields[2]);
+                    //console.log("Cos: " + cos + " Sin: " + sin + " Ratio: " + ratio);
+
+                    controlPointDistances.push(sin * ratio);
+                    controlPointWeights.push(cos * ratio);
+                });
+                objectProperties['bend-point-distances'] = controlPointDistances;
+                objectProperties['bend-point-weights'] = controlPointWeights;
             }
         };
 
@@ -987,6 +1012,16 @@ class CxToJs {
                     objectProperties[propertyKey] = propertyValue;
                 });
             }
+        };
+
+        this.postProcessNodeProperties = function (vpElement, postProcessParams, nodeProperties) {
+            /** @namespace vpElement.dependencies.nodeSizeLocked **/
+            if (postProcessParams.nodeSize && vpElement['dependencies'] && vpElement.dependencies.nodeSizeLocked && vpElement.dependencies.nodeSizeLocked === 'true') {
+                nodeProperties.height = postProcessParams.nodeSize;
+                nodeProperties.width = postProcessParams.nodeSize;
+            }
+
+
         };
 
         this.cyVisualPropertyFromNiceCX = function (niceCX, type, vp) {
@@ -1021,8 +1056,91 @@ class CxToJs {
             return result;
         };
 
-        
+        this.postProcessEdgeBends = function (niceCX, edgeDefaultStyles, edgeSpecificStyles) {
+            // Handle edge curvature
+            let defaultCurveStyle = "straight";
+            _.forEach(edgeDefaultStyles, function (edgeDefaultStyle) {
+                if (edgeDefaultStyle['css']) {
+                    let defaultCss = edgeDefaultStyle['css'];
+                    defaultCurveStyle = defaultCss["curve-style"];
+                    if (defaultCurveStyle !== "segments") {
+                        if (!defaultCss['control-point-distances'] || !defaultCss['control-point-weights']) {
+                            defaultCss["curve-style"] = 'bezier';
+                        } else {
+                            defaultCss['edge-distances'] = 'node-position';
+                        }
+                    } else {
+                        if (!defaultCss['segment-distances'] || !defaultCss['segment-weights']) {
+                            defaultCss["curve-style"] = 'straight';
+                        } else {
+                            defaultCss['edge-distances'] = 'node-position';
+                        }
+                    }
+                }
+            });
+            _.forEach(edgeSpecificStyles, function (edgeStyle, edgeId) {
+                let distance_element_name = "segment-distances";
+                let weight_element_name = "segment-weights";
+
+                if (edgeStyle['css']) {
+                    let css = edgeStyle['css'];
+                    let curveStyle = null;
+                    if (css["curve-style"]) {
+                        if (css["curve-style"] !== "segments") {
+                            distance_element_name = "control-point-distances";
+                            weight_element_name = "control-point-weights";
+                        }
+                    } else {
+                        if (defaultCurveStyle !== "segments") {
+                            curveStyle = "unbundled-bezier";
+                            distance_element_name = "control-point-distances";
+                            weight_element_name = "control-point-weights";
+                        } else {
+                            curveStyle = "segments";
+                        }
+                    }
+                    if (css['bend-point-weights'] || css['bend-point-distances']) {
+                        if (curveStyle) {
+                            css['curve-style'] = curveStyle;
+                        }
+                        css['edge-distances'] = 'node-position';
+                        if (css['bend-point-weights']) {
+                            css[weight_element_name] = css['bend-point-weights'];
+                            delete css['bend-point-weights'];
+                        }
+                        if (css['bend-point-distances']) {
+                            let edge = niceCX['edges'][edgeId];
+                            let s = edge['s'];
+                            let t = edge['t'];
+                            let sx, sy, tx, ty;
+                            for (let i = 0; i < niceCX['cartesianLayout']['elements'].length; i++) {
+                                if (niceCX['cartesianLayout']['elements'][i]['node'] == s) {
+                                    sx = niceCX['cartesianLayout']['elements'][i]['x'];
+                                    sy = niceCX['cartesianLayout']['elements'][i]['y'];
+                                }
+                                if (niceCX['cartesianLayout']['elements'][i]['node'] == t) {
+                                    tx = niceCX['cartesianLayout']['elements'][i]['x'];
+                                    ty = niceCX['cartesianLayout']['elements'][i]['y'];
+                                }
+                            }
+                            let dx = tx - sx;
+                            let dy = ty - sy;
+                            let edgeLength = Math.sqrt(dx * dx + dy * dy);
+                            css[distance_element_name] = [];
+                            //console.log(" s: " + sx + "," + sy + " t: " + tx + "," + ty + " dst: " + edgeLength);
+                            for (let i = 0; i < css['bend-point-distances'].length; i++) {
+                                css[distance_element_name].push(css['bend-point-distances'][i] * edgeLength);
+                            }
+
+                            delete css['bend-point-distances'];
+                        }
+                    }
+                }
+            });
+        };
     }
+
+
 
     // Public API here: the factory object will be returned
 
@@ -1268,13 +1386,12 @@ class CxToJs {
 
         var nodeDefaultStyles = [];
         var nodeDefaultMappings = [];
-        var nodeSpecificStyles = [];
+        var nodeSpecificStyles = {};
         var edgeDefaultStyles = [];
         var edgeDefaultMappings = [];
-        var edgeSpecificStyles = [];
+        var edgeSpecificStyles = {};
         var nodeSelectedStyles = [];
         var edgeSelectedStyles = [];
-
 
         var visualProperties;
         if (niceCX.cyVisualProperties) {
@@ -1293,6 +1410,9 @@ class CxToJs {
         var expandDefaultProperties = this.expandDefaultProperties;
         var getCyVisualAttributeTypeForVp = this.getCyVisualAttributeTypeForVp;
         var getCyVisualAttributeValue = this.getCyVisualAttributeValue;
+        var postProcessNodeProperties = this.postProcessNodeProperties;
+        var postProcessEdgeProperties = this.postProcessEdgeProperties;
+        var postProcessEdgeBends = this.postProcessEdgeBends;
         var mappingStyle = this.mappingStyle;
         _.forEach(visualProperties, function (vpAspectElement) {
             _.forEach(vpAspectElement, function (vpElement) {
@@ -1301,7 +1421,9 @@ class CxToJs {
                 if (elementType === 'nodes:default') {
 
                     var defaultNodeProperties = {};
-                    var nodeSize = null;
+
+                    var postProcessNodeParams = {};
+                    postProcessNodeParams.nodeSize = null;
 
                     _.forEach(vpElement.properties, function (value, vp) {
                         //console.log('default node property ' + vp + ' = ' + value);
@@ -1323,7 +1445,7 @@ class CxToJs {
                                 nodeSelectedStyles.push({ 'selector': 'node:selected', 'css': { 'background-color': selectedColor } });
 
                             } else if (vp === 'NODE_SIZE') {
-                                nodeSize = value;
+                                postProcessNodeParams.nodeSize = value;
 
                             } else if (vp === 'NODE_LABEL_WIDTH') {
                                 defaultNodeProperties['text-wrap'] = 'wrap';
@@ -1392,20 +1514,12 @@ class CxToJs {
                                         j++;
                                     });
                                 }
-
                                 defaultNodeProperties['pie-size'] = '80%';
                             }
-
                         }
                     });
 
-                    /** @namespace vpElement.dependencies.nodeSizeLocked **/
-                    if (nodeSize && vpElement['dependencies'] && vpElement.dependencies.nodeSizeLocked && vpElement.dependencies.nodeSizeLocked === 'true') {
-                        defaultNodeProperties.height = nodeSize;
-                        defaultNodeProperties.width = nodeSize;
-                    }
-
-                    
+                    postProcessNodeProperties(vpElement, postProcessNodeParams, defaultNodeProperties);
 
                     var defaultNodeStyle = { 'selector': 'node', 'css': defaultNodeProperties };
                     nodeDefaultStyles.push(defaultNodeStyle);
@@ -1426,9 +1540,7 @@ class CxToJs {
                     });
 
                 } else if (elementType === 'edges:default') {
-
                     var defaultEdgeProperties = {};
-
                     var selectedEdgeProperties = {};
                     _.forEach(vpElement.properties, function (value, vp) {
                         var cyVisualAttribute = null;
@@ -1491,9 +1603,10 @@ class CxToJs {
                                 }
                             }
                         }
-
-
                     });
+
+
+
                     if (_.keys(selectedEdgeProperties).length > 0) {
                         edgeSelectedStyles.push({ 'selector': 'edge:selected', 'css': selectedEdgeProperties });
                     }
@@ -1501,7 +1614,7 @@ class CxToJs {
                     edgeDefaultStyles.push(defaultEdgeStyle);
 
                     _.forEach(vpElement.mappings, function (mapping, vp) {
-                        //console.log(mapping);
+
                         //console.log('VP = ' + vp);
                         elementType = 'edge';
                         var styles = null;
@@ -1523,8 +1636,8 @@ class CxToJs {
                             styles = mappingStyle(elementType, vp, mapping.type, mapping.definition, attributeNameMap);
                             edgeDefaultMappings = edgeDefaultMappings.concat(styles);
                         }
-                    });
 
+                    });
                     /*   _.forEach(vpElement.dependencies, function(value, vp) {
                            if ( vp === 'arrowColorMatchesEdge') {
                                defaultEdgeProperties['source-arrow-color'] = defaultEdgeProperties['line-color'];
@@ -1540,6 +1653,7 @@ class CxToJs {
                     if (!defaultEdgeProperties['curve-style']) {
                         defaultEdgeProperties['curve-style'] = 'bezier';
                     }
+
                 } else if (elementType === 'nodes') {
                     // 'bypass' setting node specific properties
                     /** @namespace vpElement.applies_to **/
@@ -1552,16 +1666,24 @@ class CxToJs {
                             if (EXPANDED_PROPERTY_FUNCTION_MAP[vp]) {
                                 if (value) {
                                     expandProperties(vp, value, nodeProperties);
-                                } 
+                                }
                             } else {
                                 nodeProperties[cyVisualAttribute] = getCyVisualAttributeValue(value, cyVisualAttributeType);
                             }
                         }
                     });
-                    var nodeSelector = 'node[ id = \'' + nodeId + '\' ]';
-                    var nodeStyle = { 'selector': nodeSelector, 'css': nodeProperties };
-                    nodeSpecificStyles.push(nodeStyle);
 
+                    if (nodeSpecificStyles[nodeId]) {
+                        if (!nodeSpecificStyles[nodeId]['css'])
+                            nodeSpecificStyles[nodeId]['css'] = {};
+                        _.forEach(nodeProperties, function (value, key) {
+                            nodeSpecificStyles[nodeId].css[key] = value;
+                        });
+                    } else {
+                        var nodeSelector = 'node[ id = \'' + nodeId + '\' ]';
+                        var nodeStyle = { 'selector': nodeSelector, 'css': nodeProperties };
+                        nodeSpecificStyles[nodeId] = nodeStyle;
+                    }
                 } else if (elementType === 'edges') {
                     // 'bypass' setting edge specific properties
                     var edgeId = vpElement.applies_to;
@@ -1579,21 +1701,49 @@ class CxToJs {
                             }
                         }
                     });
-                    var edgeSelector = 'edge[ id = \'e' + edgeId + '\' ]';
-                    var edgeStyle = { 'selector': edgeSelector, 'css': edgeProperties };
-                    edgeSpecificStyles.push(edgeStyle);
+
+                    if (edgeSpecificStyles[edgeId]) {
+                        if (!edgeSpecificStyles[edgeId]['css'])
+                            edgeSpecificStyles[edgeId]['css'] = {};
+                        _.forEach(edgeProperties, function (value, key) {
+                            edgeSpecificStyles[edgeId].css[key] = value;
+                        });
+                    } else {
+                        var edgeSelector = 'edge[ id = \'e' + edgeId + '\' ]';
+                        var edgeStyle = { 'selector': edgeSelector, 'css': edgeProperties };
+                        edgeSpecificStyles[edgeId] = edgeStyle;
+                    }
+
                 }
             });
         });
 
-        return nodeDefaultStyles.concat(
-            nodeDefaultMappings,
-            nodeSpecificStyles,
+        postProcessEdgeBends(niceCX, edgeDefaultStyles, edgeSpecificStyles);
+
+        var styles = nodeDefaultStyles.concat(
+            nodeDefaultMappings
+        );
+        _.forEach(nodeSpecificStyles, function (nodeSpecificStyle) {
+            styles.push(nodeSpecificStyle);
+        });
+
+        styles = styles.concat(
             edgeDefaultStyles,
-            edgeDefaultMappings,
-            edgeSpecificStyles,
+            edgeDefaultMappings);
+
+        // output the edgeMap to the edgeList
+        _.forEach(edgeSpecificStyles, function (edgeSpecificStyle) {
+            styles.push(edgeSpecificStyle);
+        });
+
+        styles = styles.concat(
             nodeSelectedStyles,
             edgeSelectedStyles);
+        // output the nodeMap to the nodeList
+
+        return styles;
+
+
     }
 
     cyZoomFromNiceCX(niceCX) {
