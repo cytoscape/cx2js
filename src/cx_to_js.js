@@ -93,7 +93,7 @@ const ARROW_SHAPE_MAP = {
     'HALF_CIRCLE': 'triangle',
     'HALF_TOP': 'triangle',
     'NONE': 'none',
-    'OPEN_CIRCLE': 'triangle',
+    'OPEN_CIRCLE': 'circle',
     'OPEN_DELTA': 'triangle',
     'OPEN_DIAMOND': 'diamond',
     'OPEN_HALF_CIRCLE': 'triangle',
