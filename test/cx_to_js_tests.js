@@ -549,7 +549,30 @@ describe('CX to JS', function () {
     expect(result).to.equal(jsVisualAttributeValue);
   });
 
-  it('cxToJs base discreteMappingStyle', function () {
+  it('cxToJs discreteMappingStyle base', function () {
+    var utils = new CyNetworkUtils();
+    var cxToJs = new CxToJs(utils);
+
+    var cxVP = "EDGE_WIDTH";
+    var cxElementType = "edge";
+
+    var cxDef = {
+      m: { '0': { K: 'true', V: '3' } },
+      COL: 'directed',
+      T: 'boolean'
+    };
+
+    let jsDiscreetMappingStyle = [{
+      selector: 'edge[directed = \'true\']',
+      css: { 'width': 3 }
+    }];
+
+    var result = cxToJs.discreteMappingStyle(cxElementType, cxVP, cxDef, {});
+
+    expect(result).to.eql(jsDiscreetMappingStyle);
+  });
+
+  it('cxToJs discreteMappingStyle expanded', function () {
     var utils = new CyNetworkUtils();
     var cxToJs = new CxToJs(utils);
 
@@ -557,14 +580,14 @@ describe('CX to JS', function () {
     var cxElementType = "edge";
 
     var cxDef = {
-      m: { '0': { K: 'true', V: 'DELTA' } },
+      m: { '0': { K: 'true', V: 'OPEN_DELTA' } },
       COL: 'directed',
       T: 'boolean'
     };
 
     let jsDiscreetMappingStyle = [{
       selector: 'edge[directed = \'true\']',
-      css: { 'target-arrow-shape': 'triangle' }
+      css: { "target-arrow-fill": "hollow", 'target-arrow-shape': 'triangle' }
     }];
 
     var result = cxToJs.discreteMappingStyle(cxElementType, cxVP, cxDef, {});

@@ -93,7 +93,7 @@ const ARROW_SHAPE_MAP = {
     'HALF_CIRCLE': 'triangle',
     'HALF_TOP': 'triangle',
     'NONE': 'none',
-    'OPEN_CIRCLE': 'triangle',
+    'OPEN_CIRCLE': 'circle',
     'OPEN_DELTA': 'triangle',
     'OPEN_DIAMOND': 'diamond',
     'OPEN_HALF_CIRCLE': 'triangle',
@@ -101,6 +101,14 @@ const ARROW_SHAPE_MAP = {
     'SQUARE': 'square',
     'T': 'tee'
 };
+
+const HOLLOW_ARROW_SHAPES = [
+    'OPEN_CIRCLE',
+    'OPEN_DELTA',
+    'OPEN_DIAMOND',
+    'OPEN_HALF_CIRCLE',
+    'OPEN_SQUARE'
+];
 
 // there are 16 line styles in Cytoscape 3.6.1 and 3 line styles in Cytoscape.js 3.2.9
 const LINE_STYLE_MAP = {
@@ -313,8 +321,6 @@ const CYTOSCAPE_TO_JS_NODE_LABEL_COORDINATES = {
         'W': { 'text-halign': 'center', 'text-valign': 'center' }   // 100
     }
 };
-
-
 
 const visualPropertyMap = {
 
@@ -701,20 +707,22 @@ class CxToJs {
                 if (shapeValue) {
                     return shapeValue;
                 }
-            } else if (cyVisualAttributeType === 'arrow') {
+            } //else if (cyVisualAttributeType === 'arrow') {
                 //console.log(visualAttributeValue);
-                var arrowValue = ARROW_SHAPE_MAP[visualAttributeValue];
-                if (arrowValue) {
-                    return arrowValue;
-                }
-            } else if (cyVisualAttributeType === 'line') {
+              //  var arrowValue = ARROW_SHAPE_MAP[visualAttributeValue];
+              //  if (arrowValue) {
+             //       return arrowValue;
+              //  }
+            //} 
+            else if (cyVisualAttributeType === 'line') {
                 var lineValue = LINE_STYLE_MAP[visualAttributeValue];
                 if (lineValue) {
                     return lineValue;
                 }
-            } else if (cyVisualAttributeType === 'labelPosition') {
-                return self.getNodeLabelPosition(visualAttributeValue);
-            } else if (cyVisualAttributeType === 'curveStyle') {
+            } //else if (cyVisualAttributeType === 'labelPosition') {
+              //  return self.getNodeLabelPosition(visualAttributeValue);
+            //} 
+            else if (cyVisualAttributeType === 'curveStyle') {
                 if (!visualAttributeValue || visualAttributeValue === 'false') {
                     return 'segments';
                 } else {
@@ -749,7 +757,8 @@ class CxToJs {
             _.forEach(def.m, function (pair) {
                 var cyDataAttributeValue = pair.K;
                 var visualAttributeValue = pair.V;
-                var cyVisualAttributeValue = self.getCyVisualAttributeValue(visualAttributeValue, cyVisualAttributeType);
+                //var cyVisualAttributeValue = self.getCyVisualAttributeValue(visualAttributeValue, cyVisualAttributeType);
+                
                 // check if cyDataAttributeValue is a valid number (float or integer)
                 //      var isValidNumber =
                 //          regExToCheckIfIntNumber.test(cyDataAttributeValue) ||
@@ -758,15 +767,15 @@ class CxToJs {
                 var cySelector = colDataType !== 'string' && colDataType !== 'boolean' ?
                     elementType + '[' + cyDataAttribute + ' = ' + cyDataAttributeValue + ']' :
                     elementType + '[' + cyDataAttribute + ' = \'' + cyDataAttributeValue + '\']';
+                    var cyVisualAttributePair = {};
+                    if (self.EXPANDED_PROPERTY_FUNCTION_MAP[vp]) {
+                        if (visualAttributeValue) {
+                            self.expandProperties(vp, visualAttributeValue, cyVisualAttributePair );
+                        }
+                    } else {
+                        cyVisualAttributePair[cyVisualAttribute] = self.getCyVisualAttributeValue(visualAttributeValue, cyVisualAttributeType);
+                    }
 
-                var cyVisualAttributePair = {};
-                if (cyVisualAttribute !== 'labelPosition') {
-                    cyVisualAttributePair[cyVisualAttribute] = cyVisualAttributeValue;
-                } else {
-                    // cyVisualAttribute is 'labelPosition'
-                    cyVisualAttributePair['text-halign'] = cyVisualAttributeValue['text-halign'];
-                    cyVisualAttributePair['text-valign'] = cyVisualAttributeValue['text-valign'];
-                }
                 var element = { 'selector': cySelector, 'css': cyVisualAttributePair };
                 //console.log(element);
                 elements.push(element);
@@ -971,6 +980,16 @@ class CxToJs {
             objectProperties['font-size'] = font[font.length - 1];
         };
 
+        this.expandArrowShapeProperties = function(value, objectProperties, arrowShapeName, arrowFillName) {
+            let arrowShape = ARROW_SHAPE_MAP[value];
+            if (arrowShape) {
+                objectProperties[arrowShapeName] = arrowShape;
+                if (HOLLOW_ARROW_SHAPES.includes(value)) {
+                    objectProperties[arrowFillName] = 'hollow';
+                }
+            }
+        };
+
         this.EXPANDED_PROPERTY_FUNCTION_MAP = {
             'NODE_LABEL_FONT_FACE': self.expandFontFaceProperties,
             'EDGE_LABEL_FONT_FACE': self.expandFontFaceProperties,
@@ -997,7 +1016,11 @@ class CxToJs {
                 });
                 objectProperties['bend-point-distances'] = controlPointDistances;
                 objectProperties['bend-point-weights'] = controlPointWeights;
-            }
+            },
+            'EDGE_SOURCE_ARROW_SHAPE' : function (arrowShape, objectProperties) {
+                self.expandArrowShapeProperties(arrowShape, objectProperties, 'source-arrow-shape', 'source-arrow-fill');},
+            'EDGE_TARGET_ARROW_SHAPE' : function (arrowShape, objectProperties) {
+                self.expandArrowShapeProperties(arrowShape, objectProperties, 'target-arrow-shape', 'target-arrow-fill');},
         };
 
         this.expandProperties = function (vp, value, objectProperties) {
@@ -1020,8 +1043,6 @@ class CxToJs {
                 nodeProperties.height = postProcessParams.nodeSize;
                 nodeProperties.width = postProcessParams.nodeSize;
             }
-
-
         };
 
         this.cyVisualPropertyFromNiceCX = function (niceCX, type, vp) {
@@ -1421,12 +1442,10 @@ class CxToJs {
                 if (elementType === 'nodes:default') {
 
                     var defaultNodeProperties = {};
-
                     var postProcessNodeParams = {};
                     postProcessNodeParams.nodeSize = null;
 
                     _.forEach(vpElement.properties, function (value, vp) {
-                        //console.log('default node property ' + vp + ' = ' + value);
                         var cyVisualAttribute = getCyVisualAttributeForVP(vp);
                         if (cyVisualAttribute) {
                             if (EXPANDED_PROPERTY_FUNCTION_MAP[vp]) {
@@ -1545,7 +1564,6 @@ class CxToJs {
                     _.forEach(vpElement.properties, function (value, vp) {
                         var cyVisualAttribute = null;
                         var cyVisualAttributeType = null;
-                        //console.log('default node property ' + vp + ' = ' + value);
                         //special cases for locked edge color
                         /** @namespace vpElement.dependencies.arrowColorMatchesEdge **/
                         if (vpElement['dependencies'] && vpElement.dependencies.arrowColorMatchesEdge.toLowerCase() === 'true') {
