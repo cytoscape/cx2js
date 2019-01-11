@@ -402,7 +402,7 @@ describe('CX to JS', function () {
 
     var labelFontFace = "Dialog.plain,plain,15";
     var objectProperties = {};
-    cxToJs.expandProperties('NODE_LABEL_FONT_FACE', labelFontFace, objectProperties);
+    cxToJs.expandPropertiesFromFunctionMap('NODE_LABEL_FONT_FACE', labelFontFace, objectProperties);
 
     var expandedFontProperties = {
       "font-family": "Segoe UI,Frutiger,Frutiger Linotype,Dejavu Sans,Helvetica Neue,Arial,sans-serif",
@@ -420,7 +420,7 @@ describe('CX to JS', function () {
 
     var labelFontFace = "Dialog.bolditalic,plain,15";
     var objectProperties = {};
-    cxToJs.expandProperties('NODE_LABEL_FONT_FACE', labelFontFace, objectProperties);
+    cxToJs.expandPropertiesFromFunctionMap('NODE_LABEL_FONT_FACE', labelFontFace, objectProperties);
 
     var expandedFontProperties = {
       "font-family": "Segoe UI,Frutiger,Frutiger Linotype,Dejavu Sans,Helvetica Neue,Arial,sans-serif",
@@ -438,7 +438,7 @@ describe('CX to JS', function () {
 
     var labelFontFace = "ArialMT,plain,10";
     var objectProperties = {};
-    cxToJs.expandProperties('NODE_LABEL_FONT_FACE', labelFontFace, objectProperties);
+    cxToJs.expandPropertiesFromFunctionMap('NODE_LABEL_FONT_FACE', labelFontFace, objectProperties);
 
     var expandedFontProperties = {
       "font-family": "Arial,Helvetica Neue,Helvetica,sans-serif",
@@ -453,7 +453,7 @@ describe('CX to JS', function () {
     var cxToJs = new CxToJs(utils);
 
     var objectProperties = {};
-    cxToJs.expandDefaultProperties('NODE_LABEL_FONT_FACE', objectProperties);
+    cxToJs.expandPropertiesFromDefaultMap('NODE_LABEL_FONT_FACE', objectProperties);
 
     var expandedProperties = {
       'font-family': 'sans-serif',
@@ -470,7 +470,7 @@ describe('CX to JS', function () {
     var cyLabelPosition = "C,C,c,0.00,0.00";
     var objectProperties = {};
 
-    cxToJs.expandProperties('NODE_LABEL_POSITION', cyLabelPosition, objectProperties);
+    cxToJs.expandPropertiesFromFunctionMap('NODE_LABEL_POSITION', cyLabelPosition, objectProperties);
 
     var expandedLabelPosition = {
       "text-halign": "center",
@@ -487,7 +487,7 @@ describe('CX to JS', function () {
     var cyLabelPosition = "NW,C,c,0.00,0.00";
     var objectProperties = {};
 
-    cxToJs.expandProperties('NODE_LABEL_POSITION', cyLabelPosition, objectProperties);
+    cxToJs.expandPropertiesFromFunctionMap('NODE_LABEL_POSITION', cyLabelPosition, objectProperties);
 
     var expandedLabelPosition = {
       "text-halign": "left",
@@ -692,7 +692,7 @@ describe('CX to JS', function () {
     let cos = Math.cos(angle);
     let ratio = 0.5;
     var bendValue = cos + "," + sin + "," + ratio;
-    cxToJs.expandProperties('EDGE_BEND', bendValue, objectProperties);
+    cxToJs.expandPropertiesFromFunctionMap('EDGE_BEND', bendValue, objectProperties);
 
     var expectedBendDistance = sin * ratio;
     var expectedBendWeight = cos * ratio;

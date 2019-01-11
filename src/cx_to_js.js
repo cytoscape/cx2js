@@ -708,11 +708,11 @@ class CxToJs {
                     return shapeValue;
                 }
             } //else if (cyVisualAttributeType === 'arrow') {
-                //console.log(visualAttributeValue);
-              //  var arrowValue = ARROW_SHAPE_MAP[visualAttributeValue];
-              //  if (arrowValue) {
-             //       return arrowValue;
-              //  }
+            //console.log(visualAttributeValue);
+            //  var arrowValue = ARROW_SHAPE_MAP[visualAttributeValue];
+            //  if (arrowValue) {
+            //       return arrowValue;
+            //  }
             //} 
             else if (cyVisualAttributeType === 'line') {
                 var lineValue = LINE_STYLE_MAP[visualAttributeValue];
@@ -720,7 +720,7 @@ class CxToJs {
                     return lineValue;
                 }
             } //else if (cyVisualAttributeType === 'labelPosition') {
-              //  return self.getNodeLabelPosition(visualAttributeValue);
+            //  return self.getNodeLabelPosition(visualAttributeValue);
             //} 
             else if (cyVisualAttributeType === 'curveStyle') {
                 if (!visualAttributeValue || visualAttributeValue === 'false') {
@@ -758,7 +758,7 @@ class CxToJs {
                 var cyDataAttributeValue = pair.K;
                 var visualAttributeValue = pair.V;
                 //var cyVisualAttributeValue = self.getCyVisualAttributeValue(visualAttributeValue, cyVisualAttributeType);
-                
+
                 // check if cyDataAttributeValue is a valid number (float or integer)
                 //      var isValidNumber =
                 //          regExToCheckIfIntNumber.test(cyDataAttributeValue) ||
@@ -767,14 +767,14 @@ class CxToJs {
                 var cySelector = colDataType !== 'string' && colDataType !== 'boolean' ?
                     elementType + '[' + cyDataAttribute + ' = ' + cyDataAttributeValue + ']' :
                     elementType + '[' + cyDataAttribute + ' = \'' + cyDataAttributeValue + '\']';
-                    var cyVisualAttributePair = {};
-                    if (self.EXPANDED_PROPERTY_FUNCTION_MAP[vp]) {
-                        if (visualAttributeValue) {
-                            self.expandProperties(vp, visualAttributeValue, cyVisualAttributePair );
-                        }
-                    } else {
-                        cyVisualAttributePair[cyVisualAttribute] = self.getCyVisualAttributeValue(visualAttributeValue, cyVisualAttributeType);
+                var cyVisualAttributePair = {};
+                if (self.EXPANDED_PROPERTY_FUNCTION_MAP[vp]) {
+                    if (visualAttributeValue) {
+                        self.expandPropertiesFromFunctionMap(vp, visualAttributeValue, cyVisualAttributePair);
                     }
+                } else {
+                    cyVisualAttributePair[cyVisualAttribute] = self.getCyVisualAttributeValue(visualAttributeValue, cyVisualAttributeType);
+                }
 
                 var element = { 'selector': cySelector, 'css': cyVisualAttributePair };
                 //console.log(element);
@@ -980,7 +980,7 @@ class CxToJs {
             objectProperties['font-size'] = font[font.length - 1];
         };
 
-        this.expandArrowShapeProperties = function(value, objectProperties, arrowShapeName, arrowFillName) {
+        this.expandArrowShapeProperties = function (value, objectProperties, arrowShapeName, arrowFillName) {
             let arrowShape = ARROW_SHAPE_MAP[value];
             if (arrowShape) {
                 objectProperties[arrowShapeName] = arrowShape;
@@ -1017,19 +1017,45 @@ class CxToJs {
                 objectProperties['bend-point-distances'] = controlPointDistances;
                 objectProperties['bend-point-weights'] = controlPointWeights;
             },
-            'EDGE_SOURCE_ARROW_SHAPE' : function (arrowShape, objectProperties) {
-                self.expandArrowShapeProperties(arrowShape, objectProperties, 'source-arrow-shape', 'source-arrow-fill');},
-            'EDGE_TARGET_ARROW_SHAPE' : function (arrowShape, objectProperties) {
-                self.expandArrowShapeProperties(arrowShape, objectProperties, 'target-arrow-shape', 'target-arrow-fill');},
+            'EDGE_SOURCE_ARROW_SHAPE': function (arrowShape, objectProperties) {
+                self.expandArrowShapeProperties(arrowShape, objectProperties, 'source-arrow-shape', 'source-arrow-fill');
+            },
+            'EDGE_TARGET_ARROW_SHAPE': function (arrowShape, objectProperties) {
+                self.expandArrowShapeProperties(arrowShape, objectProperties, 'target-arrow-shape', 'target-arrow-fill');
+            },
         };
 
-        this.expandProperties = function (vp, value, objectProperties) {
+        this.expandProperties = function (cyVisualAttribute, vp, value, objectProperties) {
+            if (self.EXPANDED_PROPERTY_FUNCTION_MAP[vp]) {
+                if (value) {
+                    self.expandPropertiesFromFunctionMap(vp, value, objectProperties);
+                }
+            } else {
+                var cyVisualAttributeType = self.getCyVisualAttributeTypeForVp(vp);
+                objectProperties[cyVisualAttribute] = self.getCyVisualAttributeValue(value, cyVisualAttributeType);
+            }
+        };
+
+        this.expandDefaultProperties = function (cyVisualAttribute, vp, value, objectProperties) {
+            if (self.EXPANDED_PROPERTY_FUNCTION_MAP[vp]) {
+                if (value) {
+                    self.expandPropertiesFromFunctionMap(vp, value, objectProperties);
+                } else {
+                    self.expandPropertiesFromDefaultMap(vp, objectProperties);
+                }
+            } else {
+                var cyVisualAttributeType = self.getCyVisualAttributeTypeForVp(vp);
+                objectProperties[cyVisualAttribute] = self.getCyVisualAttributeValue(value, cyVisualAttributeType);
+            }
+        };
+
+        this.expandPropertiesFromFunctionMap = function (vp, value, objectProperties) {
             if (self.EXPANDED_PROPERTY_FUNCTION_MAP[vp]) {
                 self.EXPANDED_PROPERTY_FUNCTION_MAP[vp](value, objectProperties);
             }
         };
 
-        this.expandDefaultProperties = function (vp, objectProperties) {
+        this.expandPropertiesFromDefaultMap = function (vp, objectProperties) {
             if (DEFAULT_EXPANDED_PROPERTIES[vp]) {
                 _.forEach(DEFAULT_EXPANDED_PROPERTIES[vp], function (propertyValue, propertyKey) {
                     objectProperties[propertyKey] = propertyValue;
@@ -1426,9 +1452,9 @@ class CxToJs {
         // TODO handle cases with multiple views
 
         var getCyVisualAttributeForVP = this.getCyVisualAttributeForVP;
-        var EXPANDED_PROPERTY_FUNCTION_MAP = this.EXPANDED_PROPERTY_FUNCTION_MAP;
         var expandProperties = this.expandProperties;
         var expandDefaultProperties = this.expandDefaultProperties;
+        
         var getCyVisualAttributeTypeForVp = this.getCyVisualAttributeTypeForVp;
         var getCyVisualAttributeValue = this.getCyVisualAttributeValue;
         var postProcessNodeProperties = this.postProcessNodeProperties;
@@ -1448,16 +1474,7 @@ class CxToJs {
                     _.forEach(vpElement.properties, function (value, vp) {
                         var cyVisualAttribute = getCyVisualAttributeForVP(vp);
                         if (cyVisualAttribute) {
-                            if (EXPANDED_PROPERTY_FUNCTION_MAP[vp]) {
-                                if (value) {
-                                    expandProperties(vp, value, defaultNodeProperties);
-                                } else {
-                                    expandDefaultProperties(vp, defaultNodeProperties);
-                                }
-                            } else {
-                                var cyVisualAttributeType = getCyVisualAttributeTypeForVp(vp);
-                                defaultNodeProperties[cyVisualAttribute] = getCyVisualAttributeValue(value, cyVisualAttributeType);
-                            }
+                            expandDefaultProperties(cyVisualAttribute, vp, value, defaultNodeProperties);
                         } else {
                             if (vp === 'NODE_SELECTED_PAINT') {
                                 var selectedColor = getCyVisualAttributeValue(value, 'color');
@@ -1579,16 +1596,7 @@ class CxToJs {
                                 }
                                 cyVisualAttribute = getCyVisualAttributeForVP(vp);
                                 if (cyVisualAttribute) {
-                                    if (EXPANDED_PROPERTY_FUNCTION_MAP[vp]) {
-                                        if (value) {
-                                            expandProperties(vp, value, defaultEdgeProperties);
-                                        } else {
-                                            expandDefaultProperties(vp, defaultEdgeProperties);
-                                        }
-                                    } else {
-                                        cyVisualAttributeType = getCyVisualAttributeTypeForVp(vp);
-                                        defaultEdgeProperties[cyVisualAttribute] = getCyVisualAttributeValue(value, cyVisualAttributeType);
-                                    }
+                                    expandDefaultProperties(cyVisualAttribute, vp, value, defaultEdgeProperties);
                                 } else if (vp === 'EDGE_STROKE_SELECTED_PAINT') {
                                     selectedEdgeProperties['line-color'] = getCyVisualAttributeValue(value, 'color');
                                 } else if (vp === 'EDGE_SOURCE_ARROW_SELECTED_PAINT') {
@@ -1602,16 +1610,7 @@ class CxToJs {
                             if (vp !== 'EDGE_UNSELECTED_PAINT') {
                                 cyVisualAttribute = getCyVisualAttributeForVP(vp);
                                 if (cyVisualAttribute) {
-                                    if (EXPANDED_PROPERTY_FUNCTION_MAP[vp]) {
-                                        if (value) {
-                                            expandProperties(vp, value, defaultEdgeProperties);
-                                        } else {
-                                            expandDefaultProperties(vp, defaultEdgeProperties);
-                                        }
-                                    } else {
-                                        cyVisualAttributeType = getCyVisualAttributeTypeForVp(vp);
-                                        defaultEdgeProperties[cyVisualAttribute] = getCyVisualAttributeValue(value, cyVisualAttributeType);
-                                    }
+                                    expandDefaultProperties(cyVisualAttribute, vp, value, defaultEdgeProperties);
                                 } else if (vp === 'EDGE_STROKE_SELECTED_PAINT') {
                                     selectedEdgeProperties['line-color'] = getCyVisualAttributeValue(value, 'color');
                                 } else if (vp === 'EDGE_SOURCE_ARROW_SELECTED_PAINT') {
@@ -1680,14 +1679,7 @@ class CxToJs {
                     _.forEach(vpElement.properties, function (value, vp) {
                         var cyVisualAttribute = getCyVisualAttributeForVP(vp);
                         if (cyVisualAttribute) {
-                            var cyVisualAttributeType = getCyVisualAttributeTypeForVp(vp);
-                            if (EXPANDED_PROPERTY_FUNCTION_MAP[vp]) {
-                                if (value) {
-                                    expandProperties(vp, value, nodeProperties);
-                                }
-                            } else {
-                                nodeProperties[cyVisualAttribute] = getCyVisualAttributeValue(value, cyVisualAttributeType);
-                            }
+                            expandProperties(cyVisualAttribute, vp, value, nodeProperties);
                         }
                     });
 
@@ -1709,14 +1701,7 @@ class CxToJs {
                     _.forEach(vpElement.properties, function (value, vp) {
                         var cyVisualAttribute = getCyVisualAttributeForVP(vp);
                         if (cyVisualAttribute) {
-                            var cyVisualAttributeType = getCyVisualAttributeTypeForVp(vp);
-                            if (EXPANDED_PROPERTY_FUNCTION_MAP[vp]) {
-                                if (value) {
-                                    expandProperties(vp, value, edgeProperties);
-                                }
-                            } else {
-                                edgeProperties[cyVisualAttribute] = getCyVisualAttributeValue(value, cyVisualAttributeType);
-                            }
+                            expandProperties(cyVisualAttribute, vp, value, edgeProperties);
                         }
                     });
 
