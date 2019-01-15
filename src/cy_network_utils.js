@@ -1,22 +1,10 @@
+let _ = require('lodash');
+
 class CyNetworkUtils {
 
     constructor() {
-        var self = this;
-        this._stringifyFunctionTerm = function (functionTerm) {
-            var params = [];
-            
-                _.forEach(functionTerm.args, function (parameter) {
-                    if (parameter.f) {
-                        params.push(self._stringifyFunctionTerm(parameter));
-                    } else {
-                        params.push(parameter);
-                    }
-                });
-                return this.abbreviate(functionTerm.f) + '(' + params.join(', ') + ')';
-            
-        };
+       
     }
-
 
     rawCXtoNiceCX(rawCX) {
 
@@ -274,7 +262,21 @@ class CyNetworkUtils {
     }
 
     stringifyFunctionTerm(functionTerm) {
-        this._stringifyFunctionTerm(functionTerm);
+        console.log(functionTerm);
+        var abbreviate = this.abbreviate;
+        var _stringifyFunctionTerm = function (functionTerm) {
+            var params = [];
+                _.forEach(functionTerm.args, function (parameter) {
+                    if (parameter.f) {
+                        params.push(_stringifyFunctionTerm(parameter));
+                    } else {
+                        params.push(parameter);
+                    }
+                });
+                return abbreviate(functionTerm.f) + '(' + params.join(', ') + ')';
+            
+        };  
+        return _stringifyFunctionTerm(functionTerm);
     }
 
     abbreviate(functionName) {
