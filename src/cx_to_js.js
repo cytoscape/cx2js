@@ -1395,7 +1395,7 @@ class CxToJs {
         return elements;
 
         // #10 Need to Override ID if exists
-        //​ 'ID' has a special meaning in Cytoscape.js and if such attribute is available in CX, it should be replaced to something else.
+        // _ID_ has a special meaning in Cytoscape.js and if such attribute is available in CX, it should be replaced to something else.
         // This should be handled carefully because it breaks graph topology if not correctly converted.
 
         /*
@@ -1406,7 +1406,7 @@ class CxToJs {
 
          #16 Replace invalid characters in column names
 
-         This should be done in both attribute names ​_and_​ controlling attribute name in style object.
+         This should be done in both attribute names _and_ controlling attribute name in style object.
 
          replaceInvalid = regexp.MustCompile(`^[^a-zA-Z_]+|[^a-zA-Z_0-9]+`)
 
@@ -1458,7 +1458,7 @@ class CxToJs {
         var getCyVisualAttributeTypeForVp = this.getCyVisualAttributeTypeForVp;
         var getCyVisualAttributeValue = this.getCyVisualAttributeValue;
         var postProcessNodeProperties = this.postProcessNodeProperties;
-        var postProcessEdgeProperties = this.postProcessEdgeProperties;
+        //var postProcessEdgeProperties = this.postProcessEdgeProperties;
         var postProcessEdgeBends = this.postProcessEdgeBends;
         var mappingStyle = this.mappingStyle;
         _.forEach(visualProperties, function (vpAspectElement) {
@@ -1807,7 +1807,7 @@ class CxToJs {
 
 
      #22 Handle text wrapping and LABEL_WIDTH visual property
-     Cytoscape supports LABEL_WIDTH visual property to limit the width of labels.  And Cytoscape.scripts supports similar property ​_text-max-width_​.  But currently these are simply ignored and always render very long label if text length is long.
+     Cytoscape supports LABEL_WIDTH visual property to limit the width of labels.  And Cytoscape.scripts supports similar property _text-max-width_.  But currently these are simply ignored and always render very long label if text length is long.
 
      The Style converter should support this visual property.
 
