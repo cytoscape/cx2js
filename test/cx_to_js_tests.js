@@ -390,6 +390,32 @@ describe('CX to JS', function () {
     expect(result).to.eql(expectedList);
   });
 
+  it('cxToJs discreet parseMappingDefinition NODE_SIZE', function () {
+    var utils = new CyNetworkUtils();
+    var cxToJs = new CxToJs(utils);
+
+    var definition = "COL=node type,T=string,K=0=a,V=0=20.0,K=1=b,V=1=15.0";
+
+    let expectedList = {
+      "COL": "node type",
+      "T": "string",
+         "m": {
+           "0": {
+           "K": "a",
+           "V": "20.0"
+      
+           },
+          "1": {
+            "K": "b",
+            "V": "15.0"
+          }
+        }
+    };
+    var result = cxToJs.parseMappingDefinition(definition);
+
+    expect(result).to.eql(expectedList);
+  });
+
   it('cxToJs continuous parseMappingDefinition', function () {
     var utils = new CyNetworkUtils();
     var cxToJs = new CxToJs(utils);
@@ -619,6 +645,39 @@ describe('CX to JS', function () {
     let jsDiscreetMappingStyle = [{
       selector: 'edge[directed = \'true\']',
       css: { 'width': 3 }
+    }];
+
+    var result = cxToJs.discreteMappingStyle(cxElementType, cxVP, cxDef, {});
+
+    expect(result).to.eql(jsDiscreetMappingStyle);
+  });
+
+  it('cxToJs discreteMappingStyle NODE_SIZE', function () {
+    var utils = new CyNetworkUtils();
+    var cxToJs = new CxToJs(utils);
+
+    var cxVP = "NODE_SIZE";
+    var cxElementType = "node";
+
+    var cxDef  = {
+      "COL": "node type",
+      "T": "string",
+         "m": {
+           "0": {
+           "K": "a",
+           "V": "20.0"
+      
+           },
+          "1": {
+            "K": "b",
+            "V": "15.0"
+          }
+        }
+    };
+
+    let jsDiscreetMappingStyle = [{
+      selector: 'node[node type = \'a\']',
+      css: { 'width': 20 }
     }];
 
     var result = cxToJs.discreteMappingStyle(cxElementType, cxVP, cxDef, {});
