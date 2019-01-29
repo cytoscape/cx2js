@@ -1027,9 +1027,8 @@ class CxToJs {
                 self.expandArrowShapeProperties(arrowShape, objectProperties, 'target-arrow-shape', 'target-arrow-fill');
             },
             'NODE_SIZE': function (nodeSize, objectProperties) {
-                console.log("NODE_SIZE");
-                objectProperties['width'] = nodeSize;
-                objectProperties['height'] = nodeSize;
+                objectProperties['width'] = parseFloat(nodeSize);
+                objectProperties['height'] = parseFloat(nodeSize);
             },
         };
 

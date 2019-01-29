@@ -64,6 +64,34 @@
     }
   },
   {
+    "css": {
+      "height": 25,
+      "width": 25
+    },
+    "selector": "node[type = '']"
+  },
+  {
+    "css": {
+      "height": 25,
+      "width": 25
+    },
+    "selector": "node[type = 'Small Molecule']"
+  },
+  {
+    "css": {
+      "height": 25,
+      "width": 25
+    },
+    "selector": "node[type = 'SmallMolecule']"
+  },
+  {
+    "css": {
+      "height": 35,
+      "width": 35
+    },
+    "selector": "node[type = 'Protein']"
+  },
+  {
     "selector": "edge",
     "css": {
       "font-family": "Segoe UI,Frutiger,Frutiger Linotype,Dejavu Sans,Helvetica Neue,Arial,sans-serif",

@@ -677,8 +677,12 @@ describe('CX to JS', function () {
 
     let jsDiscreetMappingStyle = [{
       selector: 'node[node type = \'a\']',
-      css: { 'width': 20 }
-    }];
+      css: { 'width': 20, "height": 20 }
+    }, {
+      selector: "node[node type = 'b']",
+      css: { 'width': 15, 'height': 15 }
+    }
+  ];
 
     var result = cxToJs.discreteMappingStyle(cxElementType, cxVP, cxDef, {});
 
