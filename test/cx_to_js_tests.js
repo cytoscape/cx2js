@@ -390,6 +390,32 @@ describe('CX to JS', function () {
     expect(result).to.eql(expectedList);
   });
 
+  it('cxToJs discreet parseMappingDefinition NODE_SIZE', function () {
+    var utils = new CyNetworkUtils();
+    var cxToJs = new CxToJs(utils);
+
+    var definition = "COL=node type,T=string,K=0=a,V=0=20.0,K=1=b,V=1=15.0";
+
+    let expectedList = {
+      "COL": "node type",
+      "T": "string",
+         "m": {
+           "0": {
+           "K": "a",
+           "V": "20.0"
+      
+           },
+          "1": {
+            "K": "b",
+            "V": "15.0"
+          }
+        }
+    };
+    var result = cxToJs.parseMappingDefinition(definition);
+
+    expect(result).to.eql(expectedList);
+  });
+
   it('cxToJs continuous parseMappingDefinition', function () {
     var utils = new CyNetworkUtils();
     var cxToJs = new CxToJs(utils);
@@ -433,6 +459,83 @@ describe('CX to JS', function () {
     var result = cxToJs.parseMappingDefinition(definition);
 
     expect(result).to.eql(expectedList);
+  });
+
+  it('postProcessNodeProperties', function () {
+    var utils = new CyNetworkUtils();
+    var cxToJs = new CxToJs(utils);
+
+    var vpElement = {
+      dependencies : { 
+        
+      }
+    }; 
+    var postProcessParams = { nodeSize : 45 }; 
+    var nodeProperties = { width : 30, height : 40};
+    cxToJs.postProcessNodeProperties(vpElement, postProcessParams, nodeProperties);
+
+    let expectedNodeProperties = {
+      width: 30,
+      height: 40
+    };
+
+    expect(nodeProperties).to.eql(expectedNodeProperties);
+  });
+
+  it('postProcessNodeProperties locked', function () {
+    var utils = new CyNetworkUtils();
+    var cxToJs = new CxToJs(utils);
+
+    var vpElement = {
+      dependencies : { 
+        nodeSizeLocked : 'true'
+      }
+    }; 
+    var postProcessParams = { nodeSize : 45 }; 
+    var nodeProperties = {};
+    cxToJs.postProcessNodeProperties(vpElement, postProcessParams, nodeProperties);
+
+    let expectedNodeProperties = {
+      width: 45,
+      height: 45
+    };
+
+    expect(nodeProperties).to.eql(expectedNodeProperties);
+  });
+
+  it ('cxToJs style calls postProcessNodeProperties', function() {
+      var utils = new CyNetworkUtils();
+      var cxToJs = new CxToJs(utils);
+  
+      var niceCX = {
+        "visualProperties": {
+          "elements": [
+            {
+              "properties_of": "nodes:default",
+              "properties": {
+                "NODE_SIZE": "80.0",
+                "NODE_WIDTH" : "40",
+                "NODE_HEIGHT" : "50"
+              }
+            }
+          ]
+        }
+      };
+  
+      var result = cxToJs.cyStyleFromNiceCX(niceCX);
+  
+      var expectedResult = [
+          {
+            "css": {
+              width: 40,
+              height: 50
+            },
+            "selector": "node"
+          }
+  ];
+
+      expect(result).to.eql(expectedResult);
+   
   });
 
   it('cxToJs base getNodeLabelPosition', function () {
@@ -620,6 +723,43 @@ describe('CX to JS', function () {
       selector: 'edge[directed = \'true\']',
       css: { 'width': 3 }
     }];
+
+    var result = cxToJs.discreteMappingStyle(cxElementType, cxVP, cxDef, {});
+
+    expect(result).to.eql(jsDiscreetMappingStyle);
+  });
+
+  it('cxToJs discreteMappingStyle NODE_SIZE', function () {
+    var utils = new CyNetworkUtils();
+    var cxToJs = new CxToJs(utils);
+
+    var cxVP = "NODE_SIZE";
+    var cxElementType = "node";
+
+    var cxDef  = {
+      "COL": "node type",
+      "T": "string",
+         "m": {
+           "0": {
+           "K": "a",
+           "V": "20.0"
+      
+           },
+          "1": {
+            "K": "b",
+            "V": "15.0"
+          }
+        }
+    };
+
+    let jsDiscreetMappingStyle = [{
+      selector: 'node[node type = \'a\']',
+      css: { 'width': 20, "height": 20 }
+    }, {
+      selector: "node[node type = 'b']",
+      css: { 'width': 15, 'height': 15 }
+    }
+  ];
 
     var result = cxToJs.discreteMappingStyle(cxElementType, cxVP, cxDef, {});
 

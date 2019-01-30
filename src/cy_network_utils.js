@@ -262,7 +262,7 @@ class CyNetworkUtils {
     }
 
     stringifyFunctionTerm(functionTerm) {
-        console.log(functionTerm);
+        
         var abbreviate = this.abbreviate;
         var _stringifyFunctionTerm = function (functionTerm) {
             var params = [];

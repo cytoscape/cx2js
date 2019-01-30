@@ -332,7 +332,7 @@ const visualPropertyMap = {
     'NODE_BORDER_PAINT': { 'att': 'border-color', 'type': 'color' },
     'NODE_BORDER_TRANSPARENCY': { 'att': 'border-opacity', 'type': 'opacity' },
     'NODE_BORDER_WIDTH': { 'att': 'border-width', 'type': 'number' },
-    'NODE_SIZE': [{ 'att': 'width', 'type': 'number' }, { 'att': 'height', 'type': 'number' }],
+    'NODE_SIZE': { 'att': 'node-size', 'type': 'number' },
 
     'NODE_LABEL_FONT_FACE': { 'att': 'font-family', 'type': 'fontFamily' },
 
@@ -740,8 +740,7 @@ class CxToJs {
             var elements = [];
             var cyVisualAttribute = self.getCyVisualAttributeForVP(vp);
             if (!cyVisualAttribute) {
-                //console.log('no visual attribute for ' + vp)
-                return elements;  // empty result, vp not handled
+                return elements;  // empty result, vp not handled 
             }
 
             var cyVisualAttributeType = self.getCyVisualAttributeTypeForVp(vp);
@@ -773,7 +772,7 @@ class CxToJs {
                         self.expandPropertiesFromFunctionMap(vp, visualAttributeValue, cyVisualAttributePair);
                     }
                 } else {
-                    cyVisualAttributePair[cyVisualAttribute] = self.getCyVisualAttributeValue(visualAttributeValue, cyVisualAttributeType);
+                   cyVisualAttributePair[cyVisualAttribute] = self.getCyVisualAttributeValue(visualAttributeValue, cyVisualAttributeType);
                 }
 
                 var element = { 'selector': cySelector, 'css': cyVisualAttributePair };
@@ -1022,6 +1021,12 @@ class CxToJs {
             },
             'EDGE_TARGET_ARROW_SHAPE': function (arrowShape, objectProperties) {
                 self.expandArrowShapeProperties(arrowShape, objectProperties, 'target-arrow-shape', 'target-arrow-fill');
+            },
+            'NODE_SIZE': function (nodeSize, objectProperties) {
+                if (!objectProperties['width']) {
+                  objectProperties['width'] = parseFloat(nodeSize); }
+                if (!objectProperties['height']) {
+                  objectProperties['height'] = parseFloat(nodeSize); }
             },
         };
 
@@ -1475,13 +1480,13 @@ class CxToJs {
                         var cyVisualAttribute = getCyVisualAttributeForVP(vp);
                         if (cyVisualAttribute) {
                             expandDefaultProperties(cyVisualAttribute, vp, value, defaultNodeProperties);
+                            if (vp === 'NODE_SIZE') {
+                                postProcessNodeParams.nodeSize = value;
+                            }
                         } else {
                             if (vp === 'NODE_SELECTED_PAINT') {
                                 var selectedColor = getCyVisualAttributeValue(value, 'color');
                                 nodeSelectedStyles.push({ 'selector': 'node:selected', 'css': { 'background-color': selectedColor } });
-
-                            } else if (vp === 'NODE_SIZE') {
-                                postProcessNodeParams.nodeSize = value;
 
                             } else if (vp === 'NODE_LABEL_WIDTH') {
                                 defaultNodeProperties['text-wrap'] = 'wrap';
@@ -1621,8 +1626,6 @@ class CxToJs {
                             }
                         }
                     });
-
-
 
                     if (_.keys(selectedEdgeProperties).length > 0) {
                         edgeSelectedStyles.push({ 'selector': 'edge:selected', 'css': selectedEdgeProperties });
