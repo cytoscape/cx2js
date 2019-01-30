@@ -740,7 +740,6 @@ class CxToJs {
             var elements = [];
             var cyVisualAttribute = self.getCyVisualAttributeForVP(vp);
             if (!cyVisualAttribute) {
-                console.log('no visual attribute for ' + vp);
                 return elements;  // empty result, vp not handled 
             }
 
@@ -769,14 +768,11 @@ class CxToJs {
                     elementType + '[' + cyDataAttribute + ' = \'' + cyDataAttributeValue + '\']';
                 var cyVisualAttributePair = {};
                 if (self.EXPANDED_PROPERTY_FUNCTION_MAP[vp]) {
-                    console.log("expanded property map");
                     if (visualAttributeValue) {
-                        console.log("visual attribute value" + vp + " " + visualAttributeValue + " " + cyVisualAttributePair);
                         self.expandPropertiesFromFunctionMap(vp, visualAttributeValue, cyVisualAttributePair);
                     }
                 } else {
-                    console.log("not expanded property map");
-                    cyVisualAttributePair[cyVisualAttribute] = self.getCyVisualAttributeValue(visualAttributeValue, cyVisualAttributeType);
+                   cyVisualAttributePair[cyVisualAttribute] = self.getCyVisualAttributeValue(visualAttributeValue, cyVisualAttributeType);
                 }
 
                 var element = { 'selector': cySelector, 'css': cyVisualAttributePair };
