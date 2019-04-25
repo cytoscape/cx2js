@@ -130,6 +130,49 @@ describe('CX to JS', function () {
     expect(string).to.eql("bp(GO:cell proliferation)");
   });
 
+  it('niceCX getDefaultNodeLabel name', function () {
+
+    var utils = new CyNetworkUtils();
+   
+    const niceCX = {};
+
+    var nodeEntry = {
+      "@id": 4980,
+      "n": "x"
+    };
+    var name = utils.getDefaultNodeLabel(niceCX, nodeEntry);
+
+    expect(name).to.eql("x");
+  });
+
+  it('niceCX getDefaultNodeLabel zero length name', function () {
+
+    var utils = new CyNetworkUtils();
+   
+    const niceCX = {};
+
+    var nodeEntry = {
+      "@id": 4980,
+      "n": ""
+    };
+    var name = utils.getDefaultNodeLabel(niceCX, nodeEntry);
+
+    expect(name).to.eql("");
+  });
+
+  it('niceCX getDefaultNodeLabel no name', function () {
+
+    var utils = new CyNetworkUtils();
+   
+    const niceCX = {};
+
+    var nodeEntry = {
+      "@id": 4980,
+    };
+    var name = utils.getDefaultNodeLabel(niceCX, nodeEntry);
+
+    expect(name).to.eql(null);
+  });
 
   it('niceCX stringifyFunctionTerm recursion', function () {
 

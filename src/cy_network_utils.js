@@ -775,7 +775,7 @@ class CyNetworkUtils {
 
 
     getDefaultNodeLabel(niceCX, nodeElement) {
-        if (nodeElement.n) {
+        if (nodeElement.n != null) {
             return nodeElement.n;
         } else if (nodeElement.represents) {
             return nodeElement.represents;
