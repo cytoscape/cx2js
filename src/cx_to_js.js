@@ -1167,10 +1167,15 @@ class CxToJs {
                         }
                         css['edge-distances'] = 'node-position';
                         if (css['bend-point-weights']) {
+                            if (niceCX['cartesianLayout']) {
                             css[weight_element_name] = css['bend-point-weights'];
+                            } else {
+                                console.warn('Unable to calculate bend-point-weights; no cartesian layout element available');
+                            }
                             delete css['bend-point-weights'];
                         }
                         if (css['bend-point-distances']) {
+                            if (niceCX['cartesianLayout']) {
                             let edge = niceCX['edges'][edgeId];
                             let s = edge['s'];
                             let t = edge['t'];
@@ -1193,7 +1198,9 @@ class CxToJs {
                             for (let i = 0; i < css['bend-point-distances'].length; i++) {
                                 css[distance_element_name].push(css['bend-point-distances'][i] * edgeLength);
                             }
-
+                            } else {
+                                console.warn('Unable to calculate bend-point-distances; no cartesian layout element available');
+                            }
                             delete css['bend-point-distances'];
                         }
                     }

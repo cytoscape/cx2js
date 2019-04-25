@@ -1132,6 +1132,67 @@ describe('CX to JS', function () {
     expect(edgeSpecificStyles).to.eql(expectedEdgeSpecificStyles);
   });
 
+  it('cxToJs postProcessEdgeBends runs without cartesianLayout', function () {
+    var utils = new CyNetworkUtils();
+    var cxToJs = new CxToJs(utils);
+
+    var niceCX = {
+      "edges": {
+        "e147": {
+          "@id": 147,
+          "s": 143,
+          "t": 141
+        }
+      },
+    };
+
+    var edgeDefaultStyles = [
+      {
+        "selector": "edge",
+        "css": {
+          "curve-style": "unbundled-bezier"
+        }
+      }
+    ];
+
+    let angle = Math.PI / 3;
+    let sin = Math.sin(angle);
+    let cos = Math.cos(angle);
+    let ratio = 0.5;
+   
+    var bendDistance = sin * ratio;
+    var bendWeight = cos * ratio;
+
+    var edgeSpecificStyles = {
+      'e147': {
+        "selector": "edge[ id = 'e147' ]",
+        "css": {
+          "bend-point-weights": [
+            bendWeight
+          ],
+          "bend-point-distances": [
+            bendDistance
+          ]
+        }
+      }
+    };
+
+    var expectedEdgeSpecificStyles = {
+      e147:
+      {
+        selector: 'edge[ id = \'e147\' ]',
+        css:
+        {
+          'curve-style': 'unbundled-bezier',
+          'edge-distances': 'node-position'
+        }
+      }
+    };
+
+    cxToJs.postProcessEdgeBends(niceCX, edgeDefaultStyles, edgeSpecificStyles);
+    expect(edgeSpecificStyles).to.eql(expectedEdgeSpecificStyles);
+  });
+
   it('cxToJs postProcessEdgeBends math', function () {
     var utils = new CyNetworkUtils();
     var cxToJs = new CxToJs(utils);
