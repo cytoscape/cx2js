@@ -335,6 +335,7 @@ const visualPropertyMap = {
     'NODE_SIZE': { 'att': 'node-size', 'type': 'number' },
 
     'NODE_LABEL_FONT_FACE': { 'att': 'font-family', 'type': 'fontFamily' },
+    'NODE_LABEL_WIDTH': { 'att': 'text-max-width', 'type': 'number' },
 
     'NODE_LABEL': { 'att': 'content', 'type': 'string' },
     'NODE_LABEL_COLOR': { 'att': 'color', 'type': 'color' },
