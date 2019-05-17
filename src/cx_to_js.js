@@ -1490,7 +1490,9 @@ class CxToJs {
                 var elementType = vpElement.properties_of;
                 if (elementType === 'nodes:default') {
 
-                    var defaultNodeProperties = {};
+                    var defaultNodeProperties = {
+                        'text-wrap' : 'wrap'
+                    };
                     var postProcessNodeParams = {};
                     postProcessNodeParams.nodeSize = null;
 
@@ -1507,7 +1509,7 @@ class CxToJs {
                                 nodeSelectedStyles.push({ 'selector': 'node:selected', 'css': { 'background-color': selectedColor } });
 
                             } else if (vp === 'NODE_LABEL_WIDTH') {
-                                defaultNodeProperties['text-wrap'] = 'wrap';
+                               
                                 defaultNodeProperties['text-max-width'] = value;
 
                             } else if (vp === 'NODE_CUSTOMGRAPHICS_1') {
