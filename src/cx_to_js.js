@@ -335,6 +335,7 @@ const visualPropertyMap = {
     'NODE_SIZE': { 'att': 'node-size', 'type': 'number' },
 
     'NODE_LABEL_FONT_FACE': { 'att': 'font-family', 'type': 'fontFamily' },
+    'NODE_LABEL_WIDTH': { 'att': 'text-max-width', 'type': 'number' },
 
     'NODE_LABEL': { 'att': 'content', 'type': 'string' },
     'NODE_LABEL_COLOR': { 'att': 'color', 'type': 'color' },
@@ -1489,7 +1490,9 @@ class CxToJs {
                 var elementType = vpElement.properties_of;
                 if (elementType === 'nodes:default') {
 
-                    var defaultNodeProperties = {};
+                    var defaultNodeProperties = {
+                        'text-wrap' : 'wrap'
+                    };
                     var postProcessNodeParams = {};
                     postProcessNodeParams.nodeSize = null;
 
@@ -1504,10 +1507,6 @@ class CxToJs {
                             if (vp === 'NODE_SELECTED_PAINT') {
                                 var selectedColor = getCyVisualAttributeValue(value, 'color');
                                 nodeSelectedStyles.push({ 'selector': 'node:selected', 'css': { 'background-color': selectedColor } });
-
-                            } else if (vp === 'NODE_LABEL_WIDTH') {
-                                defaultNodeProperties['text-wrap'] = 'wrap';
-                                defaultNodeProperties['text-max-width'] = value;
 
                             } else if (vp === 'NODE_CUSTOMGRAPHICS_1') {
 

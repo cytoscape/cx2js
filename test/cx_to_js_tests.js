@@ -571,6 +571,7 @@ describe('CX to JS', function () {
           {
             "css": {
               width: 40,
+              "text-wrap": "wrap",
               height: 50
             },
             "selector": "node"
