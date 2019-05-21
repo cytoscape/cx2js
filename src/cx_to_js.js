@@ -1508,10 +1508,6 @@ class CxToJs {
                                 var selectedColor = getCyVisualAttributeValue(value, 'color');
                                 nodeSelectedStyles.push({ 'selector': 'node:selected', 'css': { 'background-color': selectedColor } });
 
-                            } else if (vp === 'NODE_LABEL_WIDTH') {
-                               
-                                defaultNodeProperties['text-max-width'] = value;
-
                             } else if (vp === 'NODE_CUSTOMGRAPHICS_1') {
 
                                 if (value && !value.startsWith('org.cytoscape.PieChart')) {
