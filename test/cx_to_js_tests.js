@@ -750,6 +750,58 @@ describe('CX to JS', function () {
     expect(result).to.equal(jsVisualAttributeValue);
   });
 
+  it('cxToJs getCySelector boolean false', function () {
+    var utils = new CyNetworkUtils();
+    var cxToJs = new CxToJs(utils);
+
+    var cxElementType = "edge";
+
+    let cySelector = 'edge[boolCol][!boolCol]';
+
+    var result = cxToJs.getCySelector(cxElementType, 'boolean', 'boolCol', 'false');
+
+    expect(result).to.eql(cySelector);
+  });
+
+  it('cxToJs getCySelector boolean true', function () {
+    var utils = new CyNetworkUtils();
+    var cxToJs = new CxToJs(utils);
+
+    var cxElementType = "edge";
+
+    let cySelector = 'edge[?boolCol]';
+
+    var result = cxToJs.getCySelector(cxElementType, 'boolean', 'boolCol', 'true');
+
+    expect(result).to.eql(cySelector);
+  });
+
+  it('cxToJs getCySelector string', function () {
+    var utils = new CyNetworkUtils();
+    var cxToJs = new CxToJs(utils);
+
+    var cxElementType = "edge";
+
+    let cySelector = 'edge[stringCol = \'abc\']';
+
+    var result = cxToJs.getCySelector(cxElementType, 'string', 'stringCol', 'abc');
+
+    expect(result).to.eql(cySelector);
+  });
+
+  it('cxToJs getCySelector float', function () {
+    var utils = new CyNetworkUtils();
+    var cxToJs = new CxToJs(utils);
+
+    var cxElementType = "edge";
+
+    let cySelector = 'edge[floatCol = 6]';
+
+    var result = cxToJs.getCySelector(cxElementType, 'float', 'floatCol', 6);
+
+    expect(result).to.eql(cySelector);
+  });
+
   it('cxToJs discreteMappingStyle base', function () {
     var utils = new CyNetworkUtils();
     var cxToJs = new CxToJs(utils);
@@ -764,7 +816,7 @@ describe('CX to JS', function () {
     };
 
     let jsDiscreetMappingStyle = [{
-      selector: 'edge[directed = \'true\']',
+      selector: 'edge[?directed]',
       css: { 'width': 3 }
     }];
 
@@ -824,7 +876,7 @@ describe('CX to JS', function () {
     };
 
     let jsDiscreetMappingStyle = [{
-      selector: 'edge[directed = \'true\']',
+      selector: 'edge[?directed]',
       css: { "target-arrow-fill": "hollow", 'target-arrow-shape': 'triangle' }
     }];
 
@@ -970,6 +1022,32 @@ describe('CX to JS', function () {
     var cxDef = {
       'COL': 'COMMON',
       'T': 'string',
+      'm': {}
+    };
+
+    let jsPassthroughMappingStyle = [
+      {
+        "css": {
+          "content": "data(COMMON)"
+        },
+        "selector": "node[COMMON]"
+      }];
+
+    var result = cxToJs.passthroughMappingStyle(cxElementType, cxVP, cxDef, {});
+
+    expect(result).to.eql(jsPassthroughMappingStyle);
+  });
+
+  it('cxToJs boolean passthroughMappingStyle', function () {
+    var utils = new CyNetworkUtils();
+    var cxToJs = new CxToJs(utils);
+
+    var cxVP = "NODE_LABEL";
+    var cxElementType = "node";
+
+    var cxDef = {
+      'COL': 'COMMON',
+      'T': 'boolean',
       'm': {}
     };
 

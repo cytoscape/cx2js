@@ -380,19 +380,19 @@
     }
   },
   {
-    "selector": "edge[directed = 'true']",
+    "selector": "edge[?directed]",
     "css": {
       "target-arrow-shape": "triangle"
     }
   },
   {
-    "selector": "edge[directed = 'false']",
+    "selector": "edge[directed][!directed]",
     "css": {
       "line-style": "dashed"
     }
   },
   {
-    "selector": "edge[directed = 'true']",
+    "selector": "edge[?directed]",
     "css": {
       "line-style": "solid"
     }
