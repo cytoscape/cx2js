@@ -738,7 +738,7 @@ class CxToJs {
                     if (colDataType == 'string') {
                         return elementType + '[' + cyDataAttribute + ' = \'' + cyDataAttributeValue + '\']'; 
                     } else if (colDataType == 'boolean') {
-                        console.log('discreet mapping cyDataAttributeValue = ' + cyDataAttributeValue);
+                        
                         if (cyDataAttributeValue == 'true') {
                             return elementType + '[?' + cyDataAttribute + ']';
                         } else {

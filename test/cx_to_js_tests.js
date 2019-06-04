@@ -750,6 +750,58 @@ describe('CX to JS', function () {
     expect(result).to.equal(jsVisualAttributeValue);
   });
 
+  it('cxToJs getCySelector boolean false', function () {
+    var utils = new CyNetworkUtils();
+    var cxToJs = new CxToJs(utils);
+
+    var cxElementType = "edge";
+
+    let cySelector = 'edge[boolCol][!boolCol]';
+
+    var result = cxToJs.getCySelector(cxElementType, 'boolean', 'boolCol', 'false');
+
+    expect(result).to.eql(cySelector);
+  });
+
+  it('cxToJs getCySelector boolean true', function () {
+    var utils = new CyNetworkUtils();
+    var cxToJs = new CxToJs(utils);
+
+    var cxElementType = "edge";
+
+    let cySelector = 'edge[?boolCol]';
+
+    var result = cxToJs.getCySelector(cxElementType, 'boolean', 'boolCol', 'true');
+
+    expect(result).to.eql(cySelector);
+  });
+
+  it('cxToJs getCySelector string', function () {
+    var utils = new CyNetworkUtils();
+    var cxToJs = new CxToJs(utils);
+
+    var cxElementType = "edge";
+
+    let cySelector = 'edge[stringCol = \'abc\']';
+
+    var result = cxToJs.getCySelector(cxElementType, 'string', 'stringCol', 'abc');
+
+    expect(result).to.eql(cySelector);
+  });
+
+  it('cxToJs getCySelector float', function () {
+    var utils = new CyNetworkUtils();
+    var cxToJs = new CxToJs(utils);
+
+    var cxElementType = "edge";
+
+    let cySelector = 'edge[floatCol = 6]';
+
+    var result = cxToJs.getCySelector(cxElementType, 'float', 'floatCol', 6);
+
+    expect(result).to.eql(cySelector);
+  });
+
   it('cxToJs discreteMappingStyle base', function () {
     var utils = new CyNetworkUtils();
     var cxToJs = new CxToJs(utils);
