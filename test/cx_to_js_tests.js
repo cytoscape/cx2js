@@ -764,7 +764,7 @@ describe('CX to JS', function () {
     };
 
     let jsDiscreetMappingStyle = [{
-      selector: 'edge[directed = \'true\']',
+      selector: 'edge[?directed]',
       css: { 'width': 3 }
     }];
 
@@ -824,7 +824,7 @@ describe('CX to JS', function () {
     };
 
     let jsDiscreetMappingStyle = [{
-      selector: 'edge[directed = \'true\']',
+      selector: 'edge[?directed]',
       css: { "target-arrow-fill": "hollow", 'target-arrow-shape': 'triangle' }
     }];
 
