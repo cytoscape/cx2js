@@ -1417,7 +1417,7 @@ class CxToJs {
                             _.forEach(nodeMap, function (node) {
                                 nodeList.push(node);
                             });
-                            
+                            nodeList.reverse();
                             // output the edgeMap to the edgeList
                             _.forEach(edgeMap, function (edge) {
                                 edgeList.push(edge);
