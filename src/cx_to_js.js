@@ -1748,6 +1748,26 @@ class CxToJs {
                                 });
                             });
                             
+                            // Add z-index
+                            if (niceCX.cartesianLayout) {
+                                _.forEach(niceCX.cartesianLayout.elements, function (element) {
+                                    var nodeId = element.node;
+                                    var nodeSpecificStyle = nodeSpecificStyles[nodeId];
+                                    
+                                    if (!nodeSpecificStyle){
+                                        var nodeSelector = 'node[ id = \'' + nodeId + '\' ]';
+                                        nodeSpecificStyle = { 'selector': nodeSelector };
+                                        nodeSpecificStyles[nodeId] = nodeSpecificStyle;
+                                    }
+                                    
+                                    if (!nodeSpecificStyle.css) {
+                                        nodeSpecificStyle.css = {};
+                                    }
+                                    nodeSpecificStyle.css['z-index'] = element.z;
+                                   
+                                });
+                            }
+
                             postProcessEdgeBends(niceCX, edgeDefaultStyles, edgeSpecificStyles);
                             
                             var styles = nodeDefaultStyles.concat(
