@@ -665,8 +665,23 @@ class CxToJs {
                             labelAnchorCoordinate = 'C';
                         }
                         
-                        position =
+                        var position_const =
                         CYTOSCAPE_TO_JS_NODE_LABEL_COORDINATES[nodeAnchorCoordinate][labelAnchorCoordinate];
+
+                        position['text-halign'] = position_const['text-halign'];
+                        position['text-valign'] = position_const['text-valign'];
+
+                        if ( cyLabelCoordinatesArray[2] == 'l' ) {
+                            position['text-justification'] = 'left';
+                        } else if ( cyLabelCoordinatesArray[2] == 'r' ) {
+                            position['text-justification'] = 'right';
+                        } else
+                            position['text-justification'] = 'center';
+
+                        if( cyLabelCoordinatesArray[3]!= "0.00") {
+                            position["text-margin-x"] = Number(cyLabelCoordinatesArray[3]);
+                            position["text-margin-y"] = Number(cyLabelCoordinatesArray[4]);
+                        }
                     }
                     
                     return position;
@@ -1020,6 +1035,9 @@ class CxToJs {
                         var labelPosition = self.getNodeLabelPosition(cyLabelPosition);
                         objectProperties['text-valign'] = labelPosition['text-valign'];
                         objectProperties['text-halign'] = labelPosition['text-halign'];
+                        objectProperties['text-margin-x'] = labelPosition['text-margin-x'];
+                        objectProperties['text-margin-y'] = labelPosition['text-margin-y'];
+                        objectProperties['text-justification'] = labelPosition['text-justification'];
                     },
                     'EDGE_BEND': function (cyEdgeBend, objectProperties) {
                         
