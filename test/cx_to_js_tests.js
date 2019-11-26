@@ -590,7 +590,64 @@ describe('CX to JS', function () {
 
     let jsPosition = {
       "text-halign": "center",
-      "text-valign": "center"
+      "text-valign": "center",
+      "text-justification": "center",
+      "text-margin-x": 0,
+      "text-margin-y": 0
+    };
+    var result = cxToJs.getNodeLabelPosition(cxPosition);
+
+    expect(result).to.eql(jsPosition);
+  });
+
+  it('cxToJs getNodeLabelPosition with x-y offsets', function () {
+    var utils = new CyNetworkUtils();
+    var cxToJs = new CxToJs(utils);
+
+    var cxPosition = "C,C,c,136.42,-15.48";
+
+    let jsPosition = {
+      "text-halign": "center",
+      "text-valign": "center",
+      "text-justification": "center",
+      "text-margin-x": 136.42,
+      "text-margin-y": -15.48
+    };
+    var result = cxToJs.getNodeLabelPosition(cxPosition);
+
+    expect(result).to.eql(jsPosition);
+  });
+
+  it('cxToJs getNodeLabelPosition with left justified text', function () {
+    var utils = new CyNetworkUtils();
+    var cxToJs = new CxToJs(utils);
+
+    var cxPosition = "C,C,l,0.00,0.00";
+
+    let jsPosition = {
+      "text-halign": "center",
+      "text-valign": "center",
+      "text-justification": "left",
+      "text-margin-x": 0,
+      "text-margin-y": 0
+    };
+    var result = cxToJs.getNodeLabelPosition(cxPosition);
+
+    expect(result).to.eql(jsPosition);
+  });
+
+  it('cxToJs getNodeLabelPosition with right justified text', function () {
+    var utils = new CyNetworkUtils();
+    var cxToJs = new CxToJs(utils);
+
+    var cxPosition = "C,C,r,0.00,0.00";
+
+    let jsPosition = {
+      "text-halign": "center",
+      "text-valign": "center",
+      "text-justification": "right",
+      "text-margin-x": 0,
+      "text-margin-y": 0
     };
     var result = cxToJs.getNodeLabelPosition(cxPosition);
 
@@ -676,6 +733,9 @@ describe('CX to JS', function () {
     var expandedLabelPosition = {
       "text-halign": "center",
       "text-valign": "center",
+      "text-justification": "center",
+      "text-margin-x": 0,
+      "text-margin-y": 0
     };
 
     expect(objectProperties).to.eql(expandedLabelPosition);
@@ -693,6 +753,9 @@ describe('CX to JS', function () {
     var expandedLabelPosition = {
       "text-halign": "left",
       "text-valign": "top",
+      "text-justification": "center",
+      "text-margin-x": 0,
+      "text-margin-y": 0
     };
 
     expect(objectProperties).to.eql(expandedLabelPosition);

@@ -678,10 +678,9 @@ class CxToJs {
                         } else
                             position['text-justification'] = 'center';
 
-                        if( cyLabelCoordinatesArray[3]!= "0.00") {
-                            position["text-margin-x"] = Number(cyLabelCoordinatesArray[3]);
-                            position["text-margin-y"] = Number(cyLabelCoordinatesArray[4]);
-                        }
+                        position["text-margin-x"] = Number(cyLabelCoordinatesArray[3]);
+                        position["text-margin-y"] = Number(cyLabelCoordinatesArray[4]);
+
                     }
                     
                     return position;

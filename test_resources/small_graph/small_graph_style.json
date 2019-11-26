@@ -18,6 +18,9 @@
       "background-opacity": 1,
       "text-valign": "center",
       "text-halign": "center",
+      "text-justification": "center",
+      "text-margin-x": 0,
+      "text-margin-y": 0,
       "font-weight": "normal"
     }
   },
