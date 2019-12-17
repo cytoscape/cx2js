@@ -761,6 +761,28 @@ describe('CX to JS', function () {
     expect(objectProperties).to.eql(expandedLabelPosition);
   });
 
+  it('cxToJs map EDGE_CURVED', function () {
+    var utils = new CyNetworkUtils();
+    var cxToJs = new CxToJs(utils);
+    var objectProperties = {};
+
+    cxToJs.expandPropertiesFromFunctionMap('EDGE_CURVED', "true", objectProperties);
+
+    var expandedEdgeCurved = {
+      'curve-style': 'unbundled-bezier'
+    };
+
+    expect(objectProperties).to.eql(expandedEdgeCurved);
+
+    cxToJs.expandPropertiesFromFunctionMap('EDGE_CURVED', "false", objectProperties);
+
+     expandedEdgeCurved = {
+      'curve-style': 'straight'
+    };
+    expect(objectProperties).to.eql(expandedEdgeCurved);
+  });
+
+
   it('cxToJs base getCyVisualAttributeForVP', function () {
     var utils = new CyNetworkUtils();
     var cxToJs = new CxToJs(utils);

@@ -343,7 +343,7 @@ const visualPropertyMap = {
     'NODE_LABEL_TRANSPARENCY': { 'att': 'text-opacity', 'type': 'opacity' },
     'NODE_LABEL_POSITION': { 'att': 'labelPosition', 'type': 'labelPosition' },
     
-    'EDGE_CURVED': { 'att': 'curve-style', 'type': 'curveStyle' },
+    'EDGE_CURVED': { 'att': 'curve-style', 'type': 'string' },
     'EDGE_BEND': { 'att': 'curve-style', 'type': 'edgeBend' },
     
     'EDGE_WIDTH': { 'att': 'width', 'type': 'number' },
@@ -737,13 +737,13 @@ class CxToJs {
                     } //else if (cyVisualAttributeType === 'labelPosition') {
                     //  return self.getNodeLabelPosition(visualAttributeValue);
                     //} 
-                    else if (cyVisualAttributeType === 'curveStyle') {
+                    /* else if (cyVisualAttributeType === 'curveStyle') {
                         if (!visualAttributeValue || visualAttributeValue === 'false') {
-                            return 'segments';
+                            return 'straight';
                         } else {
                             return 'unbundled-bezier';
                         }
-                    }
+                    } */
                     // assume string
                     return visualAttributeValue;
                 };
@@ -1069,7 +1069,10 @@ class CxToJs {
                             if (!objectProperties['height']) {
                                 objectProperties['height'] = parseFloat(nodeSize); }
                             },
-                        };
+                    'EDGE_CURVED': function (edgeCurved, objectProperties) {
+                        objectProperties['curve-style'] = edgeCurved === "true" ? 'unbundled-bezier' : 'straight' ;
+                    }
+                };
                         
                         this.expandProperties = function (cyVisualAttribute, vp, value, objectProperties) {
                             if (self.EXPANDED_PROPERTY_FUNCTION_MAP[vp]) {
