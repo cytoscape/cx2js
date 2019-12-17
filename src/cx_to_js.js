@@ -1056,6 +1056,11 @@ class CxToJs {
                         });
                         objectProperties['bend-point-distances'] = controlPointDistances;
                         objectProperties['bend-point-weights'] = controlPointWeights;
+
+                        if (objectProperties.hasOwnProperty('curve-style') && (
+                            objectProperties['curve-style'] === 'straight' || objectProperties['curve-style'] === 'segments')) {
+                                objectProperties['curve-style'] = controlPointWeights.length > 0? 'segments' : 'straight';
+                        }
                     },
                     'EDGE_SOURCE_ARROW_SHAPE': function (arrowShape, objectProperties) {
                         self.expandArrowShapeProperties(arrowShape, objectProperties, 'source-arrow-shape', 'source-arrow-fill');
@@ -1070,7 +1075,13 @@ class CxToJs {
                                 objectProperties['height'] = parseFloat(nodeSize); }
                             },
                     'EDGE_CURVED': function (edgeCurved, objectProperties) {
-                        objectProperties['curve-style'] = edgeCurved === "true" ? 'unbundled-bezier' : 'straight' ;
+                        if ( edgeCurved === "true") {
+                            objectProperties['curve-style'] = 'unbundled-bezier';
+                        } else if ( objectProperties.hasOwnProperty('bend-point-distances') && objectProperties['bend-point-distances'].length > 0 ) {
+                            objectProperties['curve-style'] = 'segments';
+                        } else
+                            objectProperties['curve-style'] = 'straight';
+
                     }
                 };
                         
