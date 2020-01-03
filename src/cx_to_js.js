@@ -343,7 +343,7 @@ const visualPropertyMap = {
     'NODE_LABEL_TRANSPARENCY': { 'att': 'text-opacity', 'type': 'opacity' },
     'NODE_LABEL_POSITION': { 'att': 'labelPosition', 'type': 'labelPosition' },
     
-    'EDGE_CURVED': { 'att': 'curve-style', 'type': 'curveStyle' },
+    'EDGE_CURVED': { 'att': 'curve-style', 'type': 'string' },
     'EDGE_BEND': { 'att': 'curve-style', 'type': 'edgeBend' },
     
     'EDGE_WIDTH': { 'att': 'width', 'type': 'number' },
@@ -737,13 +737,13 @@ class CxToJs {
                     } //else if (cyVisualAttributeType === 'labelPosition') {
                     //  return self.getNodeLabelPosition(visualAttributeValue);
                     //} 
-                    else if (cyVisualAttributeType === 'curveStyle') {
+                    /* else if (cyVisualAttributeType === 'curveStyle') {
                         if (!visualAttributeValue || visualAttributeValue === 'false') {
-                            return 'segments';
+                            return 'straight';
                         } else {
                             return 'unbundled-bezier';
                         }
-                    }
+                    } */
                     // assume string
                     return visualAttributeValue;
                 };
@@ -1056,6 +1056,11 @@ class CxToJs {
                         });
                         objectProperties['bend-point-distances'] = controlPointDistances;
                         objectProperties['bend-point-weights'] = controlPointWeights;
+
+                        if (objectProperties.hasOwnProperty('curve-style') && (
+                            objectProperties['curve-style'] === 'straight' || objectProperties['curve-style'] === 'segments')) {
+                                objectProperties['curve-style'] = controlPointWeights.length > 0? 'segments' : 'straight';
+                        }
                     },
                     'EDGE_SOURCE_ARROW_SHAPE': function (arrowShape, objectProperties) {
                         self.expandArrowShapeProperties(arrowShape, objectProperties, 'source-arrow-shape', 'source-arrow-fill');
@@ -1069,7 +1074,16 @@ class CxToJs {
                             if (!objectProperties['height']) {
                                 objectProperties['height'] = parseFloat(nodeSize); }
                             },
-                        };
+                    'EDGE_CURVED': function (edgeCurved, objectProperties) {
+                        if ( edgeCurved === "true") {
+                            objectProperties['curve-style'] = 'unbundled-bezier';
+                        } else if ( objectProperties.hasOwnProperty('bend-point-distances') && objectProperties['bend-point-distances'].length > 0 ) {
+                            objectProperties['curve-style'] = 'segments';
+                        } else
+                            objectProperties['curve-style'] = 'straight';
+
+                    }
+                };
                         
                         this.expandProperties = function (cyVisualAttribute, vp, value, objectProperties) {
                             if (self.EXPANDED_PROPERTY_FUNCTION_MAP[vp]) {
