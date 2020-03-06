@@ -386,7 +386,7 @@ class CxToJs {
         
         this.getCyAttributeName = function (attributeName, attributeNameMap) {
             
-            var cyAttributeName = attributeNameMap[attributeName];
+            var cyAttributeName = attributeNameMap[attributeName.toLowerCase()];
             
             if (!cyAttributeName) {
                 cyAttributeName = self.specialCaseAttributeMap[attributeName];
@@ -394,7 +394,7 @@ class CxToJs {
                     return cyAttributeName;
                 }
                 
-                attributeNameMap[attributeName] = attributeName; // direct mapping
+                attributeNameMap[attributeName.toLowerCase()] = attributeName; // direct mapping
                 cyAttributeName = attributeName;
             }
             
@@ -402,15 +402,16 @@ class CxToJs {
         };
         
         this.sanitizeAttributeNameMap = function (attributeNameMap) {
-            var attributeNames = Object.keys(attributeNameMap);
+            const attributeNames = Object.keys(attributeNameMap);
             var uniqueCounter = 1;
             attributeNames.forEach(function (attributeName) {
+                const lcAttributeName = attributeName.toLowerCase();
                 // handle attribute names that conflict with reserved names used by cyjs
-                var specialCaseName = self.specialCaseAttributeMap[attributeName];
+                var specialCaseName = self.specialCaseAttributeMap[lcAttributeName];
                 if (specialCaseName) {
-                    attributeNameMap[attributeName] = specialCaseName;
-                } else if (/^[A-Za-z][A-Za-z0-9]*$/.test(attributeName)) { // name is ok
-                    attributeNameMap[attributeName] = attributeName;
+                    attributeNameMap[lcAttributeName] = specialCaseName;
+                } else if (/^[A-Za-z][A-Za-z0-9]*$/.test(lcAttributeName)) { // name is ok
+                    attributeNameMap[lcAttributeName] = attributeName;
                 } else {
                     // We will map the name to a modified name
                     // cyjs requires that attribute names avoid special characters, so names with
@@ -420,7 +421,7 @@ class CxToJs {
                     var nonAlpha = attributeName.replace(/^[^a-zA-Z_]+|[^a-zA-Z_0-9]+/gi, '_');
                     nonAlpha = nonAlpha + '_u' + uniqueCounter;
                     uniqueCounter = uniqueCounter + 1;
-                    attributeNameMap[attributeName] = nonAlpha;
+                    attributeNameMap[lcAttributeName] = nonAlpha;
                 }
                 
             });
