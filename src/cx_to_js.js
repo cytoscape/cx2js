@@ -402,16 +402,15 @@ class CxToJs {
         };
         
         this.sanitizeAttributeNameMap = function (attributeNameMap) {
-            const attributeNames = Object.keys(attributeNameMap);
+            var attributeNames = Object.keys(attributeNameMap);
             var uniqueCounter = 1;
             attributeNames.forEach(function (attributeName) {
-                const lcAttributeName = attributeName.toLowerCase();
                 // handle attribute names that conflict with reserved names used by cyjs
-                var specialCaseName = self.specialCaseAttributeMap[lcAttributeName];
+                var specialCaseName = self.specialCaseAttributeMap[attributeName];
                 if (specialCaseName) {
-                    attributeNameMap[lcAttributeName] = specialCaseName;
-                } else if (/^[A-Za-z][A-Za-z0-9]*$/.test(lcAttributeName)) { // name is ok
-                    attributeNameMap[lcAttributeName] = attributeName;
+                    attributeNameMap[attributeName] = specialCaseName;
+                } else if (/^[A-Za-z][A-Za-z0-9]*$/.test(attributeName)) { // name is ok
+                    attributeNameMap[attributeName] = attributeName;
                 } else {
                     // We will map the name to a modified name
                     // cyjs requires that attribute names avoid special characters, so names with
@@ -421,7 +420,7 @@ class CxToJs {
                     var nonAlpha = attributeName.replace(/^[^a-zA-Z_]+|[^a-zA-Z_0-9]+/gi, '_');
                     nonAlpha = nonAlpha + '_u' + uniqueCounter;
                     uniqueCounter = uniqueCounter + 1;
-                    attributeNameMap[lcAttributeName] = nonAlpha;
+                    attributeNameMap[attributeName] = nonAlpha;
                 }
                 
             });
