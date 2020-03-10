@@ -295,9 +295,12 @@ describe('CX to JS', function () {
 
     var attributeNameMap = { 'foo': 'bar' };
 
-    var attributeName = cxToJs.getCyAttributeName('hodor', attributeNameMap);
+    var attributeName = cxToJs.getCyAttributeName('hOdor', attributeNameMap);
 
-    expect(attributeName).to.equal('hodor');
+    expect(attributeName).to.equal('hOdor');
+
+    var attributeName2 = cxToJs.getCyAttributeName('hoDOR', attributeNameMap);
+    expect(attributeName2).to.equal('hOdor');
   });
 
   it('cxToJs invalidChar sanitizeAttributeNameMap', function () {
