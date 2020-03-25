@@ -343,6 +343,8 @@ const visualPropertyMap = {
     'NODE_LABEL_TRANSPARENCY': { 'att': 'text-opacity', 'type': 'opacity' },
     'NODE_LABEL_POSITION': { 'att': 'labelPosition', 'type': 'labelPosition' },
     
+    'NODE_VISIBLE' : { 'att': 'visibility', 'type': 'visibility' },
+
     'EDGE_CURVED': { 'att': 'curve-style', 'type': 'string' },
     'EDGE_BEND': { 'att': 'curve-style', 'type': 'edgeBend' },
     
@@ -360,7 +362,9 @@ const visualPropertyMap = {
     'EDGE_SOURCE_ARROW_SHAPE': { 'att': 'source-arrow-shape', 'type': 'arrow' },
     'EDGE_TARGET_ARROW_SHAPE': { 'att': 'target-arrow-shape', 'type': 'arrow' },
     'EDGE_TARGET_ARROW_UNSELECTED_PAINT': { 'att': 'target-arrow-color', 'type': 'color' },
-    'EDGE_SOURCE_ARROW_UNSELECTED_PAINT': { 'att': 'source-arrow-color', 'type': 'color' }
+    'EDGE_SOURCE_ARROW_UNSELECTED_PAINT': { 'att': 'source-arrow-color', 'type': 'color' },
+
+    'EDGE_VISIBLE' : { 'att': 'visibility', 'type': 'visibility' }
 };
 
 class CxToJs {
@@ -734,7 +738,9 @@ class CxToJs {
                         if (lineValue) {
                             return lineValue;
                         }
-                    } //else if (cyVisualAttributeType === 'labelPosition') {
+                    } else if (cyVisualAttributeType === 'visibility') {
+                        return visualAttributeValue === 'true' ?  'visible' : 'hidden';
+                    }//else if (cyVisualAttributeType === 'labelPosition') {
                     //  return self.getNodeLabelPosition(visualAttributeValue);
                     //} 
                     /* else if (cyVisualAttributeType === 'curveStyle') {
