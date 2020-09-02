@@ -115,15 +115,15 @@ describe('CX to JS', function () {
   it('niceCX stringifyFunctionTerm', function () {
 
     var utils = new CyNetworkUtils();
-   
+
     var functionTerm = {
-      
-        "po": 105590984,
-        "f": "bel:biologicalProcess",
-        "args": [
-          "GO:cell proliferation"
-        ]
-      
+
+      "po": 105590984,
+      "f": "bel:biologicalProcess",
+      "args": [
+        "GO:cell proliferation"
+      ]
+
     };
     var string = utils.stringifyFunctionTerm(functionTerm);
 
@@ -133,7 +133,7 @@ describe('CX to JS', function () {
   it('niceCX getDefaultNodeLabel name', function () {
 
     var utils = new CyNetworkUtils();
-   
+
     const niceCX = {};
 
     var nodeEntry = {
@@ -148,7 +148,7 @@ describe('CX to JS', function () {
   it('niceCX getDefaultNodeLabel zero length name', function () {
 
     var utils = new CyNetworkUtils();
-   
+
     const niceCX = {};
 
     var nodeEntry = {
@@ -163,7 +163,7 @@ describe('CX to JS', function () {
   it('niceCX getDefaultNodeLabel no name', function () {
 
     var utils = new CyNetworkUtils();
-   
+
     const niceCX = {};
 
     var nodeEntry = {
@@ -177,7 +177,7 @@ describe('CX to JS', function () {
   it('niceCX stringifyFunctionTerm recursion', function () {
 
     var utils = new CyNetworkUtils();
-   
+
     var functionTerm = {
       "po": 105590995,
       "f": "bel:peptidaseActivity",
@@ -445,17 +445,17 @@ describe('CX to JS', function () {
     let expectedList = {
       "COL": "node type",
       "T": "string",
-         "m": {
-           "0": {
-           "K": "a",
-           "V": "20.0"
-      
-           },
-          "1": {
-            "K": "b",
-            "V": "15.0"
-          }
+      "m": {
+        "0": {
+          "K": "a",
+          "V": "20.0"
+
+        },
+        "1": {
+          "K": "b",
+          "V": "15.0"
         }
+      }
     };
     var result = cxToJs.parseMappingDefinition(definition);
 
@@ -512,12 +512,12 @@ describe('CX to JS', function () {
     var cxToJs = new CxToJs(utils);
 
     var vpElement = {
-      dependencies : { 
-        
+      dependencies: {
+
       }
-    }; 
-    var postProcessParams = { nodeSize : 45 }; 
-    var nodeProperties = { width : 30, height : 40};
+    };
+    var postProcessParams = { nodeSize: 45 };
+    var nodeProperties = { width: 30, height: 40 };
     cxToJs.postProcessNodeProperties(vpElement, postProcessParams, nodeProperties);
 
     let expectedNodeProperties = {
@@ -533,11 +533,11 @@ describe('CX to JS', function () {
     var cxToJs = new CxToJs(utils);
 
     var vpElement = {
-      dependencies : { 
-        nodeSizeLocked : 'true'
+      dependencies: {
+        nodeSizeLocked: 'true'
       }
-    }; 
-    var postProcessParams = { nodeSize : 45 }; 
+    };
+    var postProcessParams = { nodeSize: 45 };
     var nodeProperties = {};
     cxToJs.postProcessNodeProperties(vpElement, postProcessParams, nodeProperties);
 
@@ -549,40 +549,88 @@ describe('CX to JS', function () {
     expect(nodeProperties).to.eql(expectedNodeProperties);
   });
 
-  it ('cxToJs style calls postProcessNodeProperties', function() {
-      var utils = new CyNetworkUtils();
-      var cxToJs = new CxToJs(utils);
-  
-      var niceCX = {
-        "visualProperties": {
-          "elements": [
-            {
-              "properties_of": "nodes:default",
-              "properties": {
-                "NODE_SIZE": "80.0",
-                "NODE_WIDTH" : "40",
-                "NODE_HEIGHT" : "50"
-              }
-            }
-          ]
-        }
-      };
-  
-      var result = cxToJs.cyStyleFromNiceCX(niceCX);
-  
-      var expectedResult = [
-          {
-            "css": {
-              width: 40,
-              "text-wrap": "wrap",
-              height: 50
-            },
-            "selector": "node"
-          }
-  ];
+  it('cxToJs style calls postProcessNodeProperties', function () {
+    var utils = new CyNetworkUtils();
+    var cxToJs = new CxToJs(utils);
 
-      expect(result).to.eql(expectedResult);
-   
+    var niceCX = {
+      "visualProperties": {
+        "elements": [
+          {
+            "properties_of": "nodes:default",
+            "properties": {
+              "NODE_SIZE": "80.0",
+              "NODE_WIDTH": "40",
+              "NODE_HEIGHT": "50"
+            }
+          }
+        ]
+      }
+    };
+
+    var result = cxToJs.cyStyleFromNiceCX(niceCX);
+
+    var expectedResult = [
+      {
+        "css": {
+          width: 40,
+          "text-wrap": "wrap",
+          height: 50
+        },
+        "selector": "node"
+      }
+    ];
+
+    expect(result).to.eql(expectedResult);
+
+  });
+
+  it('cxToJs pieChart', function () {
+    var utils = new CyNetworkUtils();
+    var cxToJs = new CxToJs(utils);
+
+    var niceCX = {
+      "cyVisualProperties": {
+        "elements": [
+          {
+            "properties_of": "nodes:default",
+            "properties": {
+              "NODE_CUSTOMGRAPHICS_1": "org.cytoscape.PieChart:{\"cy_range\":[4.19689134222E-20,0.0493210553996],\"cy_colors\":[\"#FF0000\",\"#00FFFF\",\"#0000FF\",\"#00FF00\"],\"cy_borderWidth\":0.0,\"cy_borderColor\":\"#FFFFFF\",\"cy_dataColumns\":[\"Basal\",\"Her2\",\"LumA\",\"LumB\"]}",
+            }
+          }]
+      }
+    };
+
+    const attributeNameMap = {
+      basal : 'basal',
+      her2 : 'her2',
+      luma : 'luma',
+      lumb : 'lumb'
+    };
+    
+    const result = cxToJs.cyStyleFromNiceCX(niceCX, attributeNameMap);
+
+    expect(result[0].css["pie-1-background-color"]).to.eql("#FF0000");
+    expect(result[0].css["pie-2-background-color"]).to.eql("#00FFFF");
+    expect(result[0].css["pie-3-background-color"]).to.eql("#0000FF");
+    expect(result[0].css["pie-4-background-color"]).to.eql("#00FF00");
+
+    let ele = {};
+
+    ele.json = function() {
+      return { data: {
+        
+        basal : 4,
+        her2 : 3,
+        luma: 2,
+        lumb: 1
+      }}
+    };
+
+    expect(result[0].css['pie-1-background-size'](ele)).to.eql(40);
+    expect(result[0].css['pie-2-background-size'](ele)).to.eql(30);
+    expect(result[0].css['pie-3-background-size'](ele)).to.eql(20);
+    expect(result[0].css['pie-4-background-size'](ele)).to.eql(10);
   });
 
   it('cxToJs base getNodeLabelPosition', function () {
@@ -779,7 +827,7 @@ describe('CX to JS', function () {
 
     cxToJs.expandPropertiesFromFunctionMap('EDGE_CURVED', "false", objectProperties);
 
-     expandedEdgeCurved = {
+    expandedEdgeCurved = {
       'curve-style': 'straight'
     };
     expect(objectProperties).to.eql(expandedEdgeCurved);
@@ -920,20 +968,20 @@ describe('CX to JS', function () {
     var cxVP = "NODE_SIZE";
     var cxElementType = "node";
 
-    var cxDef  = {
+    var cxDef = {
       "COL": "node type",
       "T": "string",
-         "m": {
-           "0": {
-           "K": "a",
-           "V": "20.0"
-      
-           },
-          "1": {
-            "K": "b",
-            "V": "15.0"
-          }
+      "m": {
+        "0": {
+          "K": "a",
+          "V": "20.0"
+
+        },
+        "1": {
+          "K": "b",
+          "V": "15.0"
         }
+      }
     };
 
     let jsDiscreetMappingStyle = [{
@@ -943,7 +991,7 @@ describe('CX to JS', function () {
       selector: "node[node type = 'b']",
       css: { 'width': 15, 'height': 15 }
     }
-  ];
+    ];
 
     var result = cxToJs.discreteMappingStyle(cxElementType, cxVP, cxDef, {});
 
@@ -1063,7 +1111,7 @@ describe('CX to JS', function () {
     let jsContinuousMappingStyle = [
       {
         selector: 'node[Degree < 1]',
-        css: { 'height': 1, 'width':1 }
+        css: { 'height': 1, 'width': 1 }
       },
       {
         "css": {
@@ -1098,7 +1146,7 @@ describe('CX to JS', function () {
 
     expect(result).to.eql(jsContinuousMappingStyle);
   });
-  
+
 
   it('cxToJs base passthroughMappingStyle', function () {
     var utils = new CyNetworkUtils();
@@ -1220,7 +1268,7 @@ describe('CX to JS', function () {
     let sin = Math.sin(angle);
     let cos = Math.cos(angle);
     let ratio = 0.5;
-   
+
     var bendDistance = sin * ratio;
     var bendWeight = cos * ratio;
 
@@ -1297,7 +1345,7 @@ describe('CX to JS', function () {
     let sin = Math.sin(angle);
     let cos = Math.cos(angle);
     let ratio = 0.5;
-   
+
     var bendDistance = sin * ratio;
     var bendWeight = cos * ratio;
 
@@ -1330,14 +1378,14 @@ describe('CX to JS', function () {
     };
 
     cxToJs.postProcessEdgeBends(niceCX, edgeDefaultStyles, edgeSpecificStyles);
-    
+
     var expectedEdgeDefaultStyles = [{
       selector: 'edge',
       css: {
         'curve-style': 'straight',
       }
     }];
-    
+
     expect(edgeDefaultStyles).to.eql(expectedEdgeDefaultStyles);
     expect(edgeSpecificStyles).to.eql(expectedEdgeSpecificStyles);
   });
@@ -1369,7 +1417,7 @@ describe('CX to JS', function () {
     let sin = Math.sin(angle);
     let cos = Math.cos(angle);
     let ratio = 0.5;
-   
+
     var bendDistance = sin * ratio;
     var bendWeight = cos * ratio;
 
@@ -1444,7 +1492,7 @@ describe('CX to JS', function () {
     let sin = Math.sin(angle);
     let cos = Math.cos(angle);
     let ratio = 0.5;
-   
+
     var bendDistance = sin * ratio;
     var bendWeight = cos * ratio;
 
@@ -1478,14 +1526,14 @@ describe('CX to JS', function () {
     };
 
     cxToJs.postProcessEdgeBends(niceCX, edgeDefaultStyles, edgeSpecificStyles);
-    
+
     var expectedEdgeDefaultStyles = [{
       selector: 'edge',
       css: {
         'curve-style': 'bezier',
       }
     }];
-    
+
     expect(edgeDefaultStyles).to.eql(expectedEdgeDefaultStyles);
     expect(edgeSpecificStyles).to.eql(expectedEdgeSpecificStyles);
   });
