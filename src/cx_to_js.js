@@ -1526,6 +1526,9 @@ class CxToJs {
                             var getCyVisualAttributeTypeForVp = this.getCyVisualAttributeTypeForVp;
                             var getCyVisualAttributeValue = this.getCyVisualAttributeValue;
                             var postProcessNodeProperties = this.postProcessNodeProperties;
+
+                            var getCyAttributeName = this.getCyAttributeName;
+
                             //var postProcessEdgeProperties = this.postProcessEdgeProperties;
                             var postProcessEdgeBends = this.postProcessEdgeBends;
                             var mappingStyle = this.mappingStyle;
@@ -1567,7 +1570,7 @@ class CxToJs {
                                                     
                                                     /** @namespace pieChartObj.cy_colors **/
                                                     if (pieChartObj && pieChartObj.cy_colors && Array.isArray(pieChartObj.cy_colors)) {
-                                                        var i = 1;
+                                                        let i = 1;
                                                         
                                                         _.forEach(pieChartObj.cy_colors, function (color) {
                                                             var pieSliceColor = 'pie-' + i + '-background-color';
@@ -1580,39 +1583,44 @@ class CxToJs {
                                                     /** @namespace pieChartObj.cy_dataColumns **/
                                                     if (pieChartObj && pieChartObj.cy_dataColumns && Array.isArray(pieChartObj.cy_dataColumns)) {
                                                         
-                                                        var j = 1;
+                                                        let j = 1;
                                                         
-                                                        var normalizedNames = attributeNameMap;
-                                                        var pieColumns = {};
+                                                        const normalizedNames = attributeNameMap;
+                                                        let pieColumns = {};
                                                         
-                                                        for (var l = 0; l < pieChartObj.cy_dataColumns.length; l++) {
+                                                        for (let l = 0; l < pieChartObj.cy_dataColumns.length; l++) {
                                                             pieColumns[pieChartObj.cy_dataColumns[l]] = l;
                                                         }
                                                         
-                                                        _.forEach(pieChartObj.cy_dataColumns, function (column) {
+                                                        const normalizedColumns = pieChartObj.cy_dataColumns.map((column) => {
+                                                            return getCyAttributeName(column, attributeNameMap);
+                                                        });
+
+                                                        _.forEach(normalizedColumns, function (column) {
                                                             
-                                                            var pieSliceSize = 'pie-' + j + '-background-size';
-                                                            
+                                                            const pieSliceSize = 'pie-' + j + '-background-size';
+                                                        
                                                             defaultNodeProperties[pieSliceSize] = function (ele) {
-                                                                var data = ele.json().data;
-                                                                var totalSum = 0;
+                                                                const pieCol = pieChartObj.cy_dataColumns[j - 1];
                                                                 
-                                                                var currentColumnValue = data[normalizedNames[column]];
+                                                                const data = ele.json().data;
+
+                                                                let totalSum = 0;
+                                                                
+                                                                let currentColumnValue = data[column];
                                                                 if ((typeof currentColumnValue === 'undefined') ||
                                                                 (currentColumnValue === null) || (currentColumnValue <= 0)) {
                                                                     return 0;
                                                                 }
                                                                 
-                                                                for (var key in pieColumns) {
-                                                                    var columnValue = data[normalizedNames[key]];
+                                                                normalizedColumns.forEach (key => {
+                                                                    const columnValue = data[key];
                                                                     if (columnValue > 0) {
-                                                                        totalSum = totalSum + columnValue;
+                                                                        totalSum += columnValue;
                                                                     }
-                                                                }
-                                                                
+                                                                });
                                                                 return (totalSum > 0) ? (100.0 * currentColumnValue / totalSum) : 0;
-                                                            };
-                                                            
+                                                            };                 
                                                             j++;
                                                         });
                                                     }
