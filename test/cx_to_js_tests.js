@@ -549,6 +549,50 @@ describe('CX to JS', function () {
     expect(nodeProperties).to.eql(expectedNodeProperties);
   });
 
+  it('cxToJs style removes bend points from mappings', function () {
+    var utils = new CyNetworkUtils();
+    var cxToJs = new CxToJs(utils);
+
+    var niceCX = {
+      /*"cyTableColumn": {
+        "elements": [
+          {
+            "applies_to": "edge_table",
+            "n": "BEND_MAP_ID",
+            "d": "long"
+          }
+        ]
+      },*/
+      "visualProperties": {
+        "elements": [
+          {
+            "properties_of": "edges:default",
+            "mappings": {
+              "EDGE_BEND": {
+                "type": "DISCRETE",
+                "definition": "COL=BEND_MAP_ID,T=long,K=0=32768,V=0=-0.999465341096995,,0.03269605398006593,,0.019276522475253997|0.9695559291694197,,0.24486996592563826,,0.4928228037719012|0.9775849566562197,,-0.21054133209291012,,0.7497379871752963,K=1=32769,V=1=-0.8180894351619633,,-0.5750910154717946,,0.11517130454940294|0.48926506182749563,,-0.872135138195301,,0.12395195145033311|-0.5740923897181274,,-0.8187905275879356,,0.08896345341033057"
+              }
+            }
+          }
+        ]
+      }
+    };
+    var attributeNameMap = { 'bend_map_id': 'BEND_MAP_ID' };
+    var result = cxToJs.cyStyleFromNiceCX(niceCX, attributeNameMap);
+
+    var expectedResult = [
+      {
+        "css": {
+          "curve-style": "bezier"
+        },
+        "selector": "edge"
+      }
+    ];
+
+    expect(result).to.eql(expectedResult);
+
+  });
+
   it('cxToJs style calls postProcessNodeProperties', function () {
     var utils = new CyNetworkUtils();
     var cxToJs = new CxToJs(utils);
@@ -602,12 +646,12 @@ describe('CX to JS', function () {
     };
 
     const attributeNameMap = {
-      basal : 'basal',
-      her2 : 'her2',
-      luma : 'luma',
-      lumb : 'lumb'
+      basal: 'basal',
+      her2: 'her2',
+      luma: 'luma',
+      lumb: 'lumb'
     };
-    
+
     const result = cxToJs.cyStyleFromNiceCX(niceCX, attributeNameMap);
 
     expect(result[0].css["pie-1-background-color"]).to.eql("#FF0000");
@@ -617,14 +661,16 @@ describe('CX to JS', function () {
 
     let ele = {};
 
-    ele.json = function() {
-      return { data: {
-        
-        basal : 4,
-        her2 : 3,
-        luma: 2,
-        lumb: 1
-      }}
+    ele.json = function () {
+      return {
+        data: {
+
+          basal: 4,
+          her2: 3,
+          luma: 2,
+          lumb: 1
+        }
+      }
     };
 
     expect(result[0].css['pie-1-background-size'](ele)).to.eql(40);

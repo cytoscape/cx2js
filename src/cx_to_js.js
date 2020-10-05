@@ -1708,7 +1708,7 @@ class CxToJs {
                                             elementType = 'edge';
                                             var styles = null;
                                             
-                                            if (vpElement.dependencies.arrowColorMatchesEdge === 'true') {
+                                            if (vpElement.dependencies && vpElement.dependencies.arrowColorMatchesEdge === 'true') {
                                                 if (vp !== 'EDGE_STROKE_UNSELECTED_PAINT' && vp !== 'EDGE_SOURCE_ARROW_UNSELECTED_PAINT' &&
                                                 vp !== 'EDGE_TARGET_ARROW_UNSELECTED_PAINT') {
                                                     if (vp === 'EDGE_UNSELECTED_PAINT') {
@@ -1721,9 +1721,11 @@ class CxToJs {
                                                     edgeDefaultMappings = edgeDefaultMappings.concat(styles);
                                                 }
                                             } else {
-                                                
                                                 styles = mappingStyle(elementType, vp, mapping.type, mapping.definition, attributeNameMap);
-                                                edgeDefaultMappings = edgeDefaultMappings.concat(styles);
+                                                const filteredStyles = styles.filter((style)=> {
+                                                    return (!style.css['bend-point-distances'] && !style.css['bend-point-weights'])
+                                                })
+                                                edgeDefaultMappings = edgeDefaultMappings.concat(filteredStyles);
                                             }
                                             
                                         });
