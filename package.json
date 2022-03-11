@@ -54,7 +54,7 @@
     "webpack-cli": "^4.9.2"
   },
   "engines": {
-    "node": ">=6.3.0"
+    "node": "17.6.0"
   },
   "browserslist": "last 3 versions, >1%"
 }
