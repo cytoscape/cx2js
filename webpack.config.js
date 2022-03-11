@@ -1,3 +1,4 @@
+
 const webpack = require('webpack');
 const { env } = require('process');
 const isProd = env.NODE_ENV === 'production';
@@ -7,6 +8,7 @@ const isNonNil = x => x != null;
 const minify = env.MINIFY == 'true';
 const pkg = require('./package.json');
 const camelcase = require('camelcase');
+var path = require('path');
 
 let conf = {
   devtool: isProd ? false : 'inline-source-map',
@@ -14,7 +16,8 @@ let conf = {
   entry: './src/index.js',
 
   output: {
-    filename: './build/bundle.js',
+    path:  path.resolve(__dirname, 'build'),
+    filename: 'bundle.js',
     library: camelcase( pkg.name ),
     libraryTarget: 'umd'
   },
