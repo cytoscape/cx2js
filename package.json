@@ -46,14 +46,17 @@
     "eslint-plugin-standard": "^3.0.1",
     "fs": "0.0.1-security",
     "fs-extra": "^7.0.0",
+    "growl": "^1.10.5",
     "mocha": "^3.5.3",
     "npm-run-all": "^4.1.1",
+    "set-value": "2.0.1",
     "sinon": "^7.1.1",
     "uglifyjs-webpack-plugin": "^1.1.2",
-    "webpack": "^3.5.6"
+    "webpack": "^3.5.6",
+    "xmlhttprequest-ssl":"1.6.1"
   },
   "engines": {
-    "node": "17.6.0"
+    "node": ">=6.3.0"
   },
   "browserslist": "last 3 versions, >1%"
 }
