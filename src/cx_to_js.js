@@ -367,6 +367,16 @@ const visualPropertyMap = {
     'EDGE_VISIBLE' : { 'att': 'visibility', 'type': 'visibility' }
 };
 
+// conversion table for visual properties that relate to selections
+const selectionVisualPropertyMap = {
+    
+  'NODE_SELECTED_PAINT': { 'att': 'background-color', 'type': 'color' },
+  'EDGE_SELECTED_PAINT': { 'att': 'line-color', 'type': 'color' },
+  'EDGE_SOURCE_ARROW_SELECTED_PAINT': { 'att': 'source-arrow-color', 'type': 'color' },
+  'EDGE_STROKE_SELECTED_PAINT':  { 'att': 'line-color', 'type': 'color' },
+  'EDGE_TARGET_ARROW_SELECTED_PAINT': { 'att': 'target-arrow-color', 'type': 'color' }
+};
+
 class CxToJs {
     
     constructor(cxNetworkUtils) {
@@ -689,25 +699,25 @@ class CxToJs {
                     
                     return position;
                 };
+
+              this.getCyVisualAttributeForVP = function (vp, conversionTable) {
+                  var attProps = conversionTable[vp];
+                  if (attProps) {
+                      return attProps.att;
+                  }
+                  return false;
+              };
                 
-                this.getCyVisualAttributeForVP = function (vp) {
-                    var attProps = visualPropertyMap[vp];
-                    if (attProps) {
-                        return attProps.att;
-                    }
-                    return false;
-                };
-                
-                this.getCyVisualAttributeObjForVP = function (vp) {
-                    var attProps = visualPropertyMap[vp];
+                this.getCyVisualAttributeObjForVP = function (vp, conversionTable) {
+                    var attProps = conversionTable[vp];
                     if (attProps) {
                         return attProps;
                     }
                     return false;
                 };
                 
-                this.getCyVisualAttributeTypeForVp = function (vp) {
-                    var attProps = visualPropertyMap[vp];
+                this.getCyVisualAttributeTypeForVp = function (vp, conversionTable) {
+                    var attProps = conversionTable[vp];
                     return attProps.type;
                 };
                 
@@ -770,16 +780,16 @@ class CxToJs {
                 };
                 
                 //var getCyVisualAttributeForVP = self.getCyVisualAttributeForVP
-                this.discreteMappingStyle = function (elementType, vp, def, attributeNameMap) {
+                this.discreteMappingStyle = function (elementType, vp, def, attributeNameMap, vpConversionTable) {
                     
                     // def is the discreteMappingStyle definition
                     var elements = [];
-                    var cyVisualAttribute = self.getCyVisualAttributeForVP(vp);
+                    var cyVisualAttribute = self.getCyVisualAttributeForVP(vp, vpConversionTable);
                     if (!cyVisualAttribute) {
                         return elements;  // empty result, vp not handled 
                     }
                     
-                    var cyVisualAttributeType = self.getCyVisualAttributeTypeForVp(vp);
+                    var cyVisualAttributeType = self.getCyVisualAttributeTypeForVp(vp,vpConversionTable);
                     
                     // the cytoscape column is mapped to the cyjs attribute name
                     var cyDataAttribute = self.getCyAttributeName(def.COL, attributeNameMap);
@@ -925,9 +935,9 @@ class CxToJs {
                     
                 };
                 
-                this.continuousMappingStyle = function (elementType, vp, def, attributeNameMap) {
+                this.continuousMappingStyle = function (elementType, vp, def, attributeNameMap, conversionTable) {
                     var elements = [];
-                    var cyVisualAttributeObj = self.getCyVisualAttributeObjForVP(vp); //getCyVisualAttributeForVP(vp);
+                    var cyVisualAttributeObj = self.getCyVisualAttributeObjForVP(vp, conversionTable); //getCyVisualAttributeForVP(vp);
                     if (!cyVisualAttributeObj) {
                         //console.log('no visual attribute for ' + vp)
                         return elements;  // empty result, vp not handled
@@ -949,9 +959,9 @@ class CxToJs {
                     return elements;
                 };
                 
-                this.passthroughMappingStyle = function (elementType, vp, def, attributeNameMap) {
+                this.passthroughMappingStyle = function (elementType, vp, def, attributeNameMap, conversionTable) {
                     var elements = [];
-                    var cyVisualAttribute = self.getCyVisualAttributeForVP(vp);
+                    var cyVisualAttribute = self.getCyVisualAttributeForVP(vp, conversionTable);
                     if (!cyVisualAttribute) {
                         //console.log('no visual attribute for ' + vp)
                         return elements;  // empty result, vp not handled
@@ -971,14 +981,14 @@ class CxToJs {
                 // var discreteMappingStyle = this.discreteMappingStyle
                 // var continuousMappingStyle = this.continuousMappingStyle
                 // var passthroughMappingStyle = this.passthroughMappingStyle
-                this.mappingStyle = function (elementType, vp, type, definition, attributeNameMap) {
+                this.mappingStyle = function (elementType, vp, type, definition, attributeNameMap, conversionTable) {
                     var def = self.parseMappingDefinition(definition);
                     if (type === 'DISCRETE') {
-                        return self.discreteMappingStyle(elementType, vp, def, attributeNameMap);
+                        return self.discreteMappingStyle(elementType, vp, def, attributeNameMap, conversionTable);
                     } else if (type === 'CONTINUOUS') {
-                        return self.continuousMappingStyle(elementType, vp, def, attributeNameMap);
+                        return self.continuousMappingStyle(elementType, vp, def, attributeNameMap, conversionTable);
                     } else if (type === 'PASSTHROUGH') {
-                        return self.passthroughMappingStyle(elementType, vp, def, attributeNameMap);
+                        return self.passthroughMappingStyle(elementType, vp, def, attributeNameMap, conversionTable);
                     }
                 };
                 
@@ -1097,7 +1107,7 @@ class CxToJs {
                                     self.expandPropertiesFromFunctionMap(vp, value, objectProperties);
                                 }
                             } else {
-                                var cyVisualAttributeType = self.getCyVisualAttributeTypeForVp(vp);
+                                var cyVisualAttributeType = self.getCyVisualAttributeTypeForVp(vp, visualPropertyMap);
                                 objectProperties[cyVisualAttribute] = self.getCyVisualAttributeValue(value, cyVisualAttributeType);
                             }
                         };
@@ -1110,7 +1120,7 @@ class CxToJs {
                                     self.expandPropertiesFromDefaultMap(vp, objectProperties);
                                 }
                             } else {
-                                var cyVisualAttributeType = self.getCyVisualAttributeTypeForVp(vp);
+                                var cyVisualAttributeType = self.getCyVisualAttributeTypeForVp(vp, visualPropertyMap);
                                 objectProperties[cyVisualAttribute] = self.getCyVisualAttributeValue(value, cyVisualAttributeType);
                             }
                         };
@@ -1501,9 +1511,11 @@ class CxToJs {
                             
                             var nodeDefaultStyles = [];
                             var nodeDefaultMappings = [];
+                            var nodeSelectionMappings = [];
                             var nodeSpecificStyles = {};
                             var edgeDefaultStyles = [];
                             var edgeDefaultMappings = [];
+                            var edgeSelectionMappings = [];
                             var edgeSpecificStyles = {};
                             var nodeSelectedStyles = [];
                             var edgeSelectedStyles = [];
@@ -1541,22 +1553,32 @@ class CxToJs {
                                         var defaultNodeProperties = {
                                             'text-wrap' : 'wrap'
                                         };
+                                        var defaultSelectNodeProperties = {};
+
                                         var postProcessNodeParams = {};
                                         postProcessNodeParams.nodeSize = null;
                                         
                                         _.forEach(vpElement.properties, function (value, vp) {
-                                            var cyVisualAttribute = getCyVisualAttributeForVP(vp);
+                                            // check if it is a normal VP first.
+                                            var cyVisualAttribute = getCyVisualAttributeForVP(vp, visualPropertyMap);
                                             if (cyVisualAttribute) {
                                                 expandDefaultProperties(cyVisualAttribute, vp, value, defaultNodeProperties);
                                                 if (vp === 'NODE_SIZE') {
                                                     postProcessNodeParams.nodeSize = value;
                                                 }
                                             } else {
-                                                if (vp === 'NODE_SELECTED_PAINT') {
+                                                // check if it is one of the SELECTED_PAINT properities.
+                                                var cySelVisualAttribute = getCyVisualAttributeForVP(vp, selectionVisualPropertyMap);
+                                                if ( cySelVisualAttribute) {
+                                                  var cyVisualAttributeType = getCyVisualAttributeTypeForVp(vp, selectionVisualPropertyMap);
+                                                  defaultSelectNodeProperties[cySelVisualAttribute] = getCyVisualAttributeValue(value, cyVisualAttributeType);
+                                                }
+                                                /*if (vp === 'NODE_SELECTED_PAINT') {
                                                     var selectedColor = getCyVisualAttributeValue(value, 'color');
                                                     nodeSelectedStyles.push({ 'selector': 'node:selected', 'css': { 'background-color': selectedColor } });
                                                     
-                                                } else if (vp === 'NODE_CUSTOMGRAPHICS_1') {
+                                                } */ 
+                                                else if (vp === 'NODE_CUSTOMGRAPHICS_1') {
                                                     
                                                     if (value && !value.startsWith('org.cytoscape.PieChart')) {
                                                         return; // continue the loop
@@ -1585,7 +1607,7 @@ class CxToJs {
                                                         
                                                         let j = 1;
                                                         
-                                                        const normalizedNames = attributeNameMap;
+                                                        //const normalizedNames = attributeNameMap;
                                                         let pieColumns = {};
                                                         
                                                         for (let l = 0; l < pieChartObj.cy_dataColumns.length; l++) {
@@ -1601,7 +1623,7 @@ class CxToJs {
                                                             const pieSliceSize = 'pie-' + j + '-background-size';
                                                         
                                                             defaultNodeProperties[pieSliceSize] = function (ele) {
-                                                                const pieCol = pieChartObj.cy_dataColumns[j - 1];
+                                                               // const pieCol = pieChartObj.cy_dataColumns[j - 1];
                                                                 
                                                                 const data = ele.json().data;
 
@@ -1633,6 +1655,10 @@ class CxToJs {
                                         
                                         var defaultNodeStyle = { 'selector': 'node', 'css': defaultNodeProperties };
                                         nodeDefaultStyles.push(defaultNodeStyle);
+
+                                        if(Object.keys(defaultSelectNodeProperties).length > 0 ) {
+                                          nodeSelectedStyles.push ({ 'selector': 'node:selected', 'style': defaultSelectNodeProperties}); 
+                                        }
                                         
                                         _.forEach(vpElement.mappings, function (mapping, vp) {
                                             //console.log(mapping);
@@ -1642,10 +1668,14 @@ class CxToJs {
                                             vpElement.dependencies.nodeSizeLocked && vpElement.dependencies.nodeSizeLocked === 'true') &&
                                             !(vp === 'NODE_SIZE' && (!vpElement.dependencies.nodeSizeLocked || (vpElement.dependencies.nodeSizeLocked && vpElement.dependencies.nodeSizeLocked === 'false')))
                                             ) {
-                                                
-                                                elementType = 'node';
-                                                var styles = mappingStyle(elementType, vp, mapping.type, mapping.definition, attributeNameMap);
-                                                nodeDefaultMappings = nodeDefaultMappings.concat(styles);
+                                                if ( vp.endsWith('_SELECTED_PAINT')) {
+                                                  nodeSelectionMappings = nodeSelectionMappings.concat(
+                                                    mappingStyle('node:selected', vp, mapping.type, mapping.definition, attributeNameMap,selectionVisualPropertyMap)
+                                                  );  
+                                                } else {   
+                                                  var styles = mappingStyle('node', vp, mapping.type, mapping.definition, attributeNameMap,visualPropertyMap);
+                                                  nodeDefaultMappings = nodeDefaultMappings.concat(styles);
+                                                }
                                             }
                                         });
                                         
@@ -1659,37 +1689,35 @@ class CxToJs {
                                             /** @namespace vpElement.dependencies.arrowColorMatchesEdge **/
                                             if (vpElement['dependencies'] && vpElement.dependencies.arrowColorMatchesEdge.toLowerCase() === 'true') {
                                                 if (vp !== 'EDGE_STROKE_UNSELECTED_PAINT' && vp !== 'EDGE_SOURCE_ARROW_UNSELECTED_PAINT' &&
-                                                vp !== 'EDGE_TARGET_ARROW_UNSELECTED_PAINT') {
+                                                    vp !== 'EDGE_TARGET_ARROW_UNSELECTED_PAINT' && vp != 'EDGE_TARGET_ARROW_SELECTED_PAINT' 
+                                                    && vp != 'EDGE_SOURCE_ARROW_SELECTED_PAINT') {
                                                     if (vp === 'EDGE_UNSELECTED_PAINT') {   // add extra handling since the color is locked
-                                                        cyVisualAttribute = getCyVisualAttributeForVP('EDGE_SOURCE_ARROW_UNSELECTED_PAINT');
-                                                        cyVisualAttributeType = getCyVisualAttributeTypeForVp('EDGE_SOURCE_ARROW_UNSELECTED_PAINT');
+                                                        cyVisualAttribute = getCyVisualAttributeForVP('EDGE_SOURCE_ARROW_UNSELECTED_PAINT', visualPropertyMap);
+                                                        cyVisualAttributeType = getCyVisualAttributeTypeForVp('EDGE_SOURCE_ARROW_UNSELECTED_PAINT', visualPropertyMap);
                                                         defaultEdgeProperties[cyVisualAttribute] = getCyVisualAttributeValue(value, cyVisualAttributeType);
-                                                        cyVisualAttribute = getCyVisualAttributeForVP('EDGE_TARGET_ARROW_UNSELECTED_PAINT');
-                                                        cyVisualAttributeType = getCyVisualAttributeTypeForVp('EDGE_TARGET_ARROW_UNSELECTED_PAINT');
+                                                        cyVisualAttribute = getCyVisualAttributeForVP('EDGE_TARGET_ARROW_UNSELECTED_PAINT', visualPropertyMap);
+                                                        cyVisualAttributeType = getCyVisualAttributeTypeForVp('EDGE_TARGET_ARROW_UNSELECTED_PAINT', visualPropertyMap);
                                                         defaultEdgeProperties[cyVisualAttribute] = getCyVisualAttributeValue(value, cyVisualAttributeType);
                                                     }
-                                                    cyVisualAttribute = getCyVisualAttributeForVP(vp);
+                                                    cyVisualAttribute = getCyVisualAttributeForVP(vp, visualPropertyMap);
                                                     if (cyVisualAttribute) {
                                                         expandDefaultProperties(cyVisualAttribute, vp, value, defaultEdgeProperties);
                                                     } else if (vp === 'EDGE_STROKE_SELECTED_PAINT') {
                                                         selectedEdgeProperties['line-color'] = getCyVisualAttributeValue(value, 'color');
-                                                    } else if (vp === 'EDGE_SOURCE_ARROW_SELECTED_PAINT') {
                                                         selectedEdgeProperties['source-arrow-color'] = getCyVisualAttributeValue(value, 'color');
-                                                    } else if (vp === 'EDGE_TARGET_ARROW_SELECTED_PAINT') {
                                                         selectedEdgeProperties['target-arrow-color'] = getCyVisualAttributeValue(value, 'color');
-                                                    }
-                                                    
+                                                    } 
                                                 }
                                             } else {
                                                 if (vp !== 'EDGE_UNSELECTED_PAINT') {
-                                                    cyVisualAttribute = getCyVisualAttributeForVP(vp);
+                                                    cyVisualAttribute = getCyVisualAttributeForVP(vp, visualPropertyMap);
                                                     if (cyVisualAttribute) {
                                                         expandDefaultProperties(cyVisualAttribute, vp, value, defaultEdgeProperties);
                                                     } else if (vp === 'EDGE_STROKE_SELECTED_PAINT') {
                                                         selectedEdgeProperties['line-color'] = getCyVisualAttributeValue(value, 'color');
-                                                    } else if (vp === 'EDGE_SOURCE_ARROW_SELECTED_PAINT') {
+                                                    } else if (vp === 'EDGE_SOURCE_ARROW_SELECTED_PAINT' ) {
                                                         selectedEdgeProperties['source-arrow-color'] = getCyVisualAttributeValue(value, 'color');
-                                                    } else if (vp === 'EDGE_TARGET_ARROW_SELECTED_PAINT') {
+                                                    } else if (vp === 'EDGE_TARGET_ARROW_SELECTED_PAINT' ) {
                                                         selectedEdgeProperties['target-arrow-color'] = getCyVisualAttributeValue(value, 'color');
                                                     }
                                                 }
@@ -1699,8 +1727,7 @@ class CxToJs {
                                         if (_.keys(selectedEdgeProperties).length > 0) {
                                             edgeSelectedStyles.push({ 'selector': 'edge:selected', 'css': selectedEdgeProperties });
                                         }
-                                        var defaultEdgeStyle = { 'selector': 'edge', 'css': defaultEdgeProperties };
-                                        edgeDefaultStyles.push(defaultEdgeStyle);
+                                        edgeDefaultStyles.push({'selector': 'edge', 'css': defaultEdgeProperties });
                                         
                                         _.forEach(vpElement.mappings, function (mapping, vp) {
                                             
@@ -1710,22 +1737,36 @@ class CxToJs {
                                             
                                             if (vpElement.dependencies && vpElement.dependencies.arrowColorMatchesEdge === 'true') {
                                                 if (vp !== 'EDGE_STROKE_UNSELECTED_PAINT' && vp !== 'EDGE_SOURCE_ARROW_UNSELECTED_PAINT' &&
-                                                vp !== 'EDGE_TARGET_ARROW_UNSELECTED_PAINT') {
-                                                    if (vp === 'EDGE_UNSELECTED_PAINT') {
-                                                        styles = mappingStyle(elementType, 'EDGE_TARGET_ARROW_UNSELECTED_PAINT', mapping.type, mapping.definition, attributeNameMap);
-                                                        edgeDefaultMappings = edgeDefaultMappings.concat(styles);
-                                                        styles = mappingStyle(elementType, 'EDGE_SOURCE_ARROW_UNSELECTED_PAINT', mapping.type, mapping.definition, attributeNameMap);
-                                                        edgeDefaultMappings = edgeDefaultMappings.concat(styles);
+                                                vp !== 'EDGE_TARGET_ARROW_UNSELECTED_PAINT' && vp != 'EDGE_SOURCE_ARROW_SELECTED_PAINT' && vp != 'EDGE_TARGET_ARROW_SELECTED_PAINT' ) {
+                                                    if (vp ==='EDGE_STROKE_SELECTED_PAINT') {
+                                                      edgeSelectionMappings = edgeSelectionMappings.concat(
+                                                        mappingStyle('edge:selected', vp, mapping.type, mapping.definition, attributeNameMap,selectionVisualPropertyMap)
+                                                       ); 
+                                                      styles = mappingStyle('edge:selected', 'EDGE_TARGET_ARROW_SELECTED_PAINT', mapping.type, mapping.definition, attributeNameMap,selectionVisualPropertyMap);
+                                                      edgeSelectionMappings = edgeSelectionMappings.concat(styles);
+                                                      styles = mappingStyle('edge:selected', 'EDGE_SOURCE_ARROW_SELECTED_PAINT', mapping.type, mapping.definition, attributeNameMap, selectionVisualPropertyMap);
+                                                      edgeSelectionMappings = edgeSelectionMappings.concat(styles);
                                                     }
-                                                    styles = mappingStyle(elementType, vp, mapping.type, mapping.definition, attributeNameMap);
-                                                    edgeDefaultMappings = edgeDefaultMappings.concat(styles);
+                                                    else { 
+                                                      if (vp === 'EDGE_UNSELECTED_PAINT') {
+                                                        styles = mappingStyle(elementType, 'EDGE_TARGET_ARROW_UNSELECTED_PAINT', mapping.type, mapping.definition, attributeNameMap,visualPropertyMap);
+                                                        edgeDefaultMappings = edgeDefaultMappings.concat(styles);
+                                                        styles = mappingStyle(elementType, 'EDGE_SOURCE_ARROW_UNSELECTED_PAINT', mapping.type, mapping.definition, attributeNameMap, visualPropertyMap);
+                                                        edgeDefaultMappings = edgeDefaultMappings.concat(styles);
+                                                    
+                                                      } 
+                                                      styles = mappingStyle(elementType, vp, mapping.type, mapping.definition, attributeNameMap,visualPropertyMap);
+                                                      edgeDefaultMappings = edgeDefaultMappings.concat(styles);
+                                                     }  
                                                 }
                                             } else {
-                                                styles = mappingStyle(elementType, vp, mapping.type, mapping.definition, attributeNameMap);
+                                              if (vp !== 'EDGE_UNSELECTED_PAINT') {
+                                                styles = mappingStyle(elementType, vp, mapping.type, mapping.definition, attributeNameMap, visualPropertyMap);
                                                 const filteredStyles = styles.filter((style)=> {
-                                                    return (!style.css['bend-point-distances'] && !style.css['bend-point-weights'])
-                                                })
+                                                    return (!style.css['bend-point-distances'] && !style.css['bend-point-weights']);
+                                                });
                                                 edgeDefaultMappings = edgeDefaultMappings.concat(filteredStyles);
+                                              }  
                                             }
                                             
                                         });
@@ -1751,7 +1792,7 @@ class CxToJs {
                                         var nodeId = vpElement.applies_to;
                                         var nodeProperties = {};
                                         _.forEach(vpElement.properties, function (value, vp) {
-                                            var cyVisualAttribute = getCyVisualAttributeForVP(vp);
+                                            var cyVisualAttribute = getCyVisualAttributeForVP(vp, visualPropertyMap);
                                             if (cyVisualAttribute) {
                                                 expandProperties(cyVisualAttribute, vp, value, nodeProperties);
                                             }
@@ -1773,7 +1814,7 @@ class CxToJs {
                                         var edgeId = vpElement.applies_to;
                                         var edgeProperties = {};
                                         _.forEach(vpElement.properties, function (value, vp) {
-                                            var cyVisualAttribute = getCyVisualAttributeForVP(vp);
+                                            var cyVisualAttribute = getCyVisualAttributeForVP(vp, visualPropertyMap);
                                             if (cyVisualAttribute) {
                                                 expandProperties(cyVisualAttribute, vp, value, edgeProperties);
                                             }
@@ -1814,8 +1855,8 @@ class CxToJs {
                                     });
                                     
                                     styles = styles.concat(
-                                        nodeSelectedStyles,
-                                        edgeSelectedStyles);
+                                        nodeSelectedStyles,nodeSelectionMappings,
+                                        edgeSelectedStyles, edgeSelectionMappings);
                                         // output the nodeMap to the nodeList
                                         
                                         return styles;

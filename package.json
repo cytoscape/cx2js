@@ -1,6 +1,6 @@
 {
   "name": "cytoscape-cx2js",
-  "version": "0.6.5",
+  "version": "0.6.7-alpha.0",
   "description": "A cx to Cytoscape JS utility",
   "repository": {
     "type": "git",
@@ -30,11 +30,11 @@
     "lodash": "^4.17.10"
   },
   "devDependencies": {
-    "babel-core": "^6.26.0",
+    "babel-core": "6.26.3",
     "babel-loader": "^7.1.2",
     "babel-polyfill": "^6.9.1",
     "babel-preset-env": "^1.6.0",
-    "browser-sync": "^2.18.13",
+    "browser-sync": "^2.27.7",
     "chai": "^4.1.2",
     "cross-env": "^5.0.0",
     "echo-cli": "^1.0.8",
@@ -46,12 +46,14 @@
     "eslint-plugin-standard": "^3.0.1",
     "fs": "0.0.1-security",
     "fs-extra": "^7.0.0",
+    "growl": "^1.10.5",
     "mocha": "^3.5.3",
     "npm-run-all": "^4.1.1",
-    "rimraf": "^2.6.2",
+    "set-value": "2.0.1",
     "sinon": "^7.1.1",
     "uglifyjs-webpack-plugin": "^1.1.2",
-    "webpack": "^3.5.6"
+    "webpack": "^3.5.6",
+    "xmlhttprequest-ssl":"1.6.1"
   },
   "engines": {
     "node": ">=6.3.0"
