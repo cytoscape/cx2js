@@ -47,7 +47,7 @@
     "fs": "0.0.1-security",
     "fs-extra": "^7.0.0",
     "growl": "^1.10.5",
-    "mocha": "^3.5.3",
+    "mocha": "^10.2.0",
     "npm-run-all": "^4.1.1",
     "set-value": "2.0.1",
     "sinon": "^7.1.1",
